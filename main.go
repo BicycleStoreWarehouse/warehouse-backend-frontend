@@ -28,23 +28,21 @@ func main() {
 	}
 
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.User{})
 
 	routes.UnauthorizedRoutes(r, db)
 
 	warehouse := r.Group("/warehouse")
 	warehouse.Use(middleware.LoginRequiredMiddleware(), middleware.WarehouseMiddleware(db))
 	{
-		warehouse.GET("/dashboard", func(c *gin.Context) {
-			controllers.WorkerDashboard(c, db)
-		})
+		routes.WarehouseRoutes(warehouse, db)
 	}
 
 	hr := r.Group("/hr")
 	hr.Use(middleware.LoginRequiredMiddleware(), middleware.HrMiddleware(db))
 	{
-		hr.GET("/dashboard", func(c *gin.Context) {
-			controllers.HrDashboard(c, db)
-		})
+		routes.HumanResourcesRoutes(hr, db)
 	}
 
 	r.GET("/logout", middleware.LoginRequiredMiddleware(), func(c *gin.Context) {
@@ -52,7 +50,7 @@ func main() {
 		session.Clear()
 		session.Save()
 
-		c.Redirect(http.StatusFound, "/login")
+		c.Redirect(http.StatusFound, "/home")
 	})
 
 	r.Run(":8000")
