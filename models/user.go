@@ -2,7 +2,7 @@ package models
 
 import (
 	"go.starlark.net/lib/time"
-    "gorm.io/gorm"
+	"gorm.io/gorm"
 )
 
 type User struct {
