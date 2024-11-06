@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="/styles/style.css">
 </head>
 <body>
     <h1>Logowanie</h1>
@@ -18,8 +19,8 @@
         <button type="submit">Zaloguj się</button>
     </form>
 
-    {{if .Error}}
-        <p style="color:red;">{{.Error}}</p>
+    {{if .error}}
+        <p style="color:red;">{{.error}}</p>
     {{end}}
 </body>
 </html>

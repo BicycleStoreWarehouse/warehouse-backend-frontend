@@ -18,6 +18,7 @@ func main() {
 	store := cookie.NewStore([]byte("secret"))
 
 	r := gin.Default()
+	r.Static("/styles", "./styles")
 	r.LoadHTMLGlob("templates/*")
 	r.Use(sessions.Sessions("warehouse", store))
 

@@ -13,7 +13,7 @@ func HrDashboard(c *gin.Context, db *gorm.DB) {
 
 	if !exists {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-			"message": "Something went wrong",
+			"message": "Musisz być zalogowany",
 		})
 		return
 	}
@@ -21,7 +21,7 @@ func HrDashboard(c *gin.Context, db *gorm.DB) {
 	user_name, _, err := models.GetUserNameAndSurname(db, user_email.(string))
 	if err != nil {
 		c.HTML(http.StatusUnauthorized, "dashboard_hr.html", gin.H{
-			"message": "Something went wrong",
+			"message": "Coś poszło nie tak",
 		})
 		return
 	}
