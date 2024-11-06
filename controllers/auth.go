@@ -1,44 +1,50 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 	"warehouse/models"
 
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
 
 func Login(c *gin.Context, db *gorm.DB) {
-	if c.Request.Method == http.MethodGet {
-		c.HTML(http.StatusOK, "login.html", nil)
+	email := c.PostForm("email")
+	password := c.PostForm("password")
 
-	} else if c.Request.Method == http.MethodPost {
-		email := c.PostForm("email")
-		password := c.PostForm("password")
+	user_exists, err := models.UserExists(db, email)
 
-		user_exists, err := models.UserExists(db, email)
+	if !user_exists || err != nil {
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"Error": "Email lub hasło jest nieprawidłowe",
+		})
+		return
+	}
 
-		if !user_exists || err != nil {
-			c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-				"Error": "Email or password is incorrect",
-			})
-		}
+	user_password, err := models.GetUserPassword(db, email)
 
-		user_password, user_name, user_position, err := models.GetInfoByEmail(db, email)
+	if password != user_password || err != nil {
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"Error": "Email lub hasło jest nieprawidłowe",
+		})
+		return
+	}
 
-		if password != user_password || err != nil {
-			c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-				"Error": "Email or password is incorrect",
-			})
-		}
+	user_position, _ := models.GetUserPosition(db, email)
 
-		message := fmt.Sprintf("Witaj, %v, jesteś %v", user_name, user_position)
+	session := sessions.Default(c)
+	session.Set("user_email", email)
+	session.Save()
 
-		// session.Set("user", email)
-		// session.Save()
-
-		c.HTML(http.StatusOK, "home.html", gin.H{"message": message})
-
+	if user_position == "Magazynowy" {
+		c.Redirect(http.StatusFound, "/warehouse/dashboard")
+	} else if user_position == "HR" {
+		c.Redirect(http.StatusFound, "/hr/dashboard")
+	} else {
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"Error": "Coś poszło nie tak",
+		})
+		return
 	}
 }

@@ -9,7 +9,7 @@ import (
 
 func DatabaseConnection() (*gorm.DB, error) {
 	// Skonfiguruj DSN z użyciem hosta, aby upewnić się, że połączenie będzie poprawne
-	dsn := "host=localhost user=group15 password=group15 dbname=group15 port=5432 sslmode=disable TimeZone=Europe/Warsaw"
+	dsn := "host=db user=group15 password=group15 dbname=group15 port=5432 sslmode=disable TimeZone=Europe/Warsaw"
 
 	// Otwórz połączenie z bazą danych
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})

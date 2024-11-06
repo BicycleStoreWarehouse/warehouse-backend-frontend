@@ -1,1 +1,55 @@
 package middleware
+
+import (
+	"net/http"
+
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
+
+	"warehouse/models"
+)
+
+func WarehouseMiddleware(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+
+		userEmail := session.Get("user_email")
+
+		userPosition, err := models.GetUserPosition(db, userEmail.(string))
+
+		if err != nil || userPosition == "" {
+			c.Redirect(http.StatusFound, "/warehouse/dashboard")
+		}
+
+		if userPosition != "Magazynowy" {
+			c.Redirect(http.StatusFound, "/hr/dashboard")
+		}
+
+		c.Set("user_position", userPosition)
+
+		c.Next()
+	}
+}
+
+func HrMiddleware(db *gorm.DB) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session := sessions.Default(c)
+
+		userEmail := session.Get("user_email")
+
+		userPosition, err := models.GetUserPosition(db, userEmail.(string))
+
+		if err != nil || userPosition == "" {
+			c.Redirect(http.StatusFound, "/hr/dashboard")
+		}
+
+		if userPosition != "HR" {
+			c.Redirect(http.StatusFound, "/warehouse/dashboard")
+		}
+
+		c.Set("user_position", userPosition)
+
+		c.Next()
+	}
+}
