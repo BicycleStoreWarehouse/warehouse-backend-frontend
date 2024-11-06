@@ -30,5 +30,4 @@ func WorkerDashboard(c *gin.Context, db *gorm.DB) {
 		"user_name": user_name,
 	})
 
-	return
 }

@@ -13,20 +13,11 @@ func Login(c *gin.Context, db *gorm.DB) {
 	email := c.PostForm("email")
 	password := c.PostForm("password")
 
-	user_exists, err := models.UserExists(db, email)
-
-	if !user_exists || err != nil {
-		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-			"Error": "Email lub hasło jest nieprawidłowe",
-		})
-		return
-	}
-
 	user_password, err := models.GetUserPassword(db, email)
 
 	if password != user_password || err != nil {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-			"Error": "Email lub hasło jest nieprawidłowe",
+			"error": "Email lub hasło jest nieprawidłowe",
 		})
 		return
 	}
@@ -43,7 +34,7 @@ func Login(c *gin.Context, db *gorm.DB) {
 		c.Redirect(http.StatusFound, "/hr/dashboard")
 	} else {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-			"Error": "Coś poszło nie tak",
+			"error": "Twoje stanowisko jest nieprawidłowe",
 		})
 		return
 	}
