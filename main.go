@@ -15,7 +15,6 @@ import (
 
 func main() {
 	store := cookie.NewStore([]byte("secret"))
-
 	r := gin.Default()
 	r.Static("/styles", "./styles")
 	r.LoadHTMLGlob("templates/*")
@@ -26,22 +25,16 @@ func main() {
 		log.Fatal("Błąd połączenia z bazą danych:", err)
 	}
 
-	db.AutoMigrate(&models.User{})
-
+	db.AutoMigrate(&models.User{}, &models.WorkingHoursDaily{}, &models.WorkingHoursMonthly{})
 	database.LoadExampleData(db)
 
 	routes.UnauthorizedRoutes(r, db)
 
 	warehouse := r.Group("/warehouse")
-	warehouse.Use(middleware.LoginRequiredMiddleware(), middleware.WarehouseMiddleware(db))
+	warehouse.Use(middleware.LoginRequiredMiddleware(), middleware.WarehouseMiddleware(db), middleware.DatabaseMiddleware(db))
 	{
 		routes.WarehouseRoutes(warehouse, db)
-	}
-
-	hr := r.Group("/hr")
-	hr.Use(middleware.LoginRequiredMiddleware(), middleware.HrMiddleware(db))
-	{
-		routes.HumanResourcesRoutes(hr, db)
+		warehouse.POST("/save_time", routes.SaveTime) // Trasa zapisywania czasu pracy
 	}
 
 	r.GET("/logout", middleware.LoginRequiredMiddleware(), func(c *gin.Context) {
@@ -51,6 +44,8 @@ func main() {
 
 		c.Redirect(http.StatusFound, "/login")
 	})
+
+	r.POST("/save_time", routes.SaveTime)
 
 	r.Run(":8000")
 }
