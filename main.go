@@ -37,6 +37,12 @@ func main() {
 		warehouse.POST("/save_time", routes.SaveTime) // Trasa zapisywania czasu pracy
 	}
 
+	hr := r.Group("/hr")
+	hr.Use(middleware.LoginRequiredMiddleware(), middleware.HrMiddleware(db))
+	{
+		routes.HumanResourcesRoutes(hr, db)
+	}
+
 	r.GET("/logout", middleware.LoginRequiredMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		session.Clear()
