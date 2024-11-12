@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"net/http"
-	"warehouse/controllers"
 	"warehouse/database"
 	"warehouse/middleware"
 	"warehouse/models"
@@ -28,8 +27,8 @@ func main() {
 	}
 
 	db.AutoMigrate(&models.User{})
-	db.AutoMigrate(&models.User{})
-	db.AutoMigrate(&models.User{})
+
+	database.LoadExampleData(db)
 
 	routes.UnauthorizedRoutes(r, db)
 
@@ -50,7 +49,7 @@ func main() {
 		session.Clear()
 		session.Save()
 
-		c.Redirect(http.StatusFound, "/home")
+		c.Redirect(http.StatusFound, "/login")
 	})
 
 	r.Run(":8000")
