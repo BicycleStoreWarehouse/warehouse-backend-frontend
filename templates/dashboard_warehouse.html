@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Witaj {{.user_name}}</h1> <!-- Zmienna message z kontrolera -->
+            <h1>Witaj {{.user_name}}</h1>
         </header>
 
         <nav>
@@ -21,9 +21,116 @@
         </nav>
 
         <section class="content">
-            <!-- Możesz dodać dodatkowe informacje lub sekcje w tym miejscu -->
             <p>Witaj w panelu administracyjnym magazynu. Jesteś zalogowany jako: <strong>{{.user_name}}</strong></p>
+
+             <!-- Czas pracy -->
+             <div id="working-time">
+                <h3>Czas pracy: <span id="working-time-display">00:00:00</span></h3>
+                <button id="start-btn" onclick="startWork()">Start</button>
+                <button id="break-btn" onclick="startBreak()">Przerwa</button>
+                <button id="stop-btn" onclick="stopWork()">Stop</button>
+            </div>
+
+                        <!-- Tabela z historią czasu pracy -->
+                        <h3>Historia czasu pracy i przerwy</h3>
+                        <table id="work-history" border="1">
+                            <thead>
+                                <tr>
+                                    <th>Dzień</th>
+                                    <th>Czas pracy</th>
+                                    <th>Czas przerwy</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Wstawianie danych z backendu -->
+                                {{range .WorkHistory}}
+                                <tr>
+                                    <td>{{.Day}}</td>
+                                    <td>{{.WorkedHours}}</td>
+                                    <td>{{.BreakTime}}</td>
+                                </tr>
+                                {{end}}
+                            </tbody>
+                        </table>
+
         </section>
     </div>
+
+    <script>
+        let workingTimer, breakTimer;
+        let workingTime = 0; // czas pracy w sekundach
+        let breakTime = 0; // czas przerwy w sekundach
+        let isWorking = false;
+        let isOnBreak = false;
+
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const sec = seconds % 60;
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
+
+        function startWork() {
+            if (isOnBreak) {
+                clearInterval(breakTimer);
+                isOnBreak = false;
+            }
+            if (!isWorking) {
+                workingTimer = setInterval(() => {
+                    workingTime++;
+                    document.getElementById('working-time-display').textContent = formatTime(workingTime);
+                }, 1000);
+                document.getElementById('start-btn').textContent = 'Pauza';
+                isWorking = true;
+            } else {
+                clearInterval(workingTimer);
+                document.getElementById('start-btn').textContent = 'Start';
+                isWorking = false;
+            }
+        }
+
+        function startBreak() {
+            if (isWorking) {
+                clearInterval(workingTimer);
+                isWorking = false;
+                document.getElementById('start-btn').textContent = 'Start';
+            }
+            if (!isOnBreak) {
+                breakTimer = setInterval(() => {
+                    breakTime++;
+                }, 1000);
+                isOnBreak = true;
+            } else {
+                clearInterval(breakTimer);
+                isOnBreak = false;
+            }
+        }
+
+        function stopWork() {
+            clearInterval(workingTimer);
+            clearInterval(breakTimer);
+            // Zapisz czas pracy i przerwy do bazy danych przez backend
+            fetch('/warehouse/save_time', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    user_id: 1,  // Przykładowe ID użytkownika; w produkcji zastąp dynamicznym ID
+                    worked_hours: workingTime,
+                    break_time: breakTime
+                })
+            }).then(response => response.json())
+              .then(data => {
+                  console.log('Czas zapisany:', data);
+              });
+            workingTime = 0;
+            breakTime = 0;
+            document.getElementById('working-time-display').textContent = '00:00:00';
+            document.getElementById('start-btn').textContent = 'Start';
+            document.getElementById('break-btn').disabled = false;
+        }
+    </script>
+
 </body>
 </html>

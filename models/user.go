@@ -2,36 +2,37 @@ package models
 
 import (
 	"time"
+
 	"gorm.io/gorm"
 )
 
 type User struct {
 	gorm.Model
-	Name	  			string		`gorm:"not null"`
-	Surname   			string		`gorm:"not null"`
-	Email				string		`gorm:"unique;not null"`
-	Position 			string		`gorm:"not null"`
-	DateOfEmployment	time.Time	`gorm:"not null"`
-	Phone				string		`gorm:"unique;not null"`
-	Password           	string    	`gorm:"not null"`
+	Name             string    `gorm:"not null"`
+	Surname          string    `gorm:"not null"`
+	Email            string    `gorm:"unique;not null"`
+	Position         string    `gorm:"not null"`
+	DateOfEmployment time.Time `gorm:"not null"`
+	Phone            string    `gorm:"unique;not null"`
+	Password         string    `gorm:"not null"`
 }
 
 func CreateUser(db *gorm.DB,
 	name, surname, email, position string, dateOfEmployment time.Time, phone, password string) error {
 
-    user := User{
-        Name:             name,
-        Surname:          surname,
-        Email:            email,
-        Position:         position,
-        DateOfEmployment: dateOfEmployment,
-        Phone:            phone,
-        Password:         password,
-    }
+	user := User{
+		Name:             name,
+		Surname:          surname,
+		Email:            email,
+		Position:         position,
+		DateOfEmployment: dateOfEmployment,
+		Phone:            phone,
+		Password:         password,
+	}
 
-    result := db.Create(&user)
+	result := db.Create(&user)
 
-    return result.Error
+	return result.Error
 }
 
 func GetUser(db *gorm.DB, email string) (user User, err error) {
@@ -46,7 +47,6 @@ func GetUser(db *gorm.DB, email string) (user User, err error) {
 
 	return user, nil
 }
-
 
 func GetUserPosition(db *gorm.DB, email string) (position string, error error) {
 	var user User
