@@ -19,9 +19,11 @@ func SaveTime(c *gin.Context) {
 	database := db.(*gorm.DB)
 
 	var jsonData struct {
-		UserID      int `json:"user_id"`
-		WorkedHours int `json:"worked_hours"` // sekundy pracy
-		BreakTime   int `json:"break_time"`   // sekundy przerwy
+		UserID      int       `json:"user_id"`
+		WorkedHours int       `json:"worked_hours"` // sekundy pracy
+		BreakTime   int       `json:"break_time"`   // sekundy przerwy
+		StartTime   time.Time `json:"start_time"`   // czas rozpoczęcia pracy
+		EndTime     time.Time `json:"end_time"`     // czas zakończenia pracy
 	}
 
 	if err := c.ShouldBindJSON(&jsonData); err != nil {
@@ -34,9 +36,10 @@ func SaveTime(c *gin.Context) {
 	workedHours := time.Duration(jsonData.WorkedHours) * time.Second
 	breakTime := time.Duration(jsonData.BreakTime) * time.Second
 
-	log.Printf("Dane JSON po przetworzeniu: UserID: %d, WorkedHours: %d sekund, BreakTime: %d sekund", jsonData.UserID, jsonData.WorkedHours, jsonData.BreakTime)
+	log.Printf("Dane JSON po przetworzeniu: UserID: %d, WorkedHours: %d sekund, BreakTime: %d sekund, StartTime: %v, EndTime: %v",
+		jsonData.UserID, jsonData.WorkedHours, jsonData.BreakTime, jsonData.StartTime, jsonData.EndTime)
 
-	err := models.DailyTimekeeping(jsonData.UserID, workedHours, breakTime, database)
+	err := models.DailyTimekeeping(jsonData.UserID, workedHours, breakTime, jsonData.StartTime, jsonData.EndTime, database)
 	if err != nil {
 		log.Printf("Błąd zapisywania czasu pracy: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Błąd podczas zapisywania czasu pracy"})
