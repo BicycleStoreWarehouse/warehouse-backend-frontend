@@ -11,12 +11,15 @@ func LoginRequiredMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session := sessions.Default(c)
 
-		userEmail := session.Get("user_email")
-		if userEmail == nil {
+		// Pobierz `user_id` z sesji
+		userID := session.Get("user_id")
+		if userID == nil {
 			c.Redirect(http.StatusFound, "/login")
+			return
 		}
 
-		c.Set("user_email", userEmail)
+		// Ustaw `user_id` w kontekście
+		c.Set("user_id", userID)
 
 		c.Next()
 	}

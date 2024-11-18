@@ -34,23 +34,30 @@
 
             <!-- Tabela z historią czasu pracy -->
             <h3>Historia czasu pracy i przerwy</h3>
-            <table id="work-history" border="1">
+            <table border="1">
                 <thead>
                     <tr>
                         <th>Dzień</th>
-                        <th>Czas pracy</th>
+                        <th>Przepracowane godziny</th>
                         <th>Czas przerwy</th>
+                        <th>Rozpoczęcie</th>
+                        <th>Zakończenie</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Wstawianie danych z backendu -->
-                    {{range .WorkHistory}}
+                    {{ range .WorkHistory }}
                     <tr>
-                        <td>{{.Day}}</td>
-                        <td>{{.WorkedHours}}</td>
-                        <td>{{.BreakTime}}</td>
+                        <td>{{ .Day }}</td>
+                        <td>{{ .WorkedHours }}</td>
+                        <td>{{ .BreakTime }}</td>
+                        <td>{{ .StartTime.Format "15:04:05" }}</td>
+                        <td>{{ .EndTime.Format "15:04:05" }}</td>
                     </tr>
-                    {{end}}
+                    {{ else }}
+                    <tr>
+                        <td colspan="5">Brak danych do wyświetlenia</td>
+                    </tr>
+                    {{ end }}
                 </tbody>
             </table>
 

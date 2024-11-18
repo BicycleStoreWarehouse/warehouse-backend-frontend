@@ -9,8 +9,7 @@ import (
 )
 
 func HrDashboard(c *gin.Context, db *gorm.DB) {
-	user_email, exists := c.Get("user_email")
-
+	userID, exists := c.Get("user_id")
 	if !exists {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
 			"message": "Musisz być zalogowany",
@@ -18,7 +17,7 @@ func HrDashboard(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	user_name, _, err := models.GetUserNameAndSurname(db, user_email.(string))
+	user, err := models.GetUserByID(db, userID.(uint))
 	if err != nil {
 		c.HTML(http.StatusUnauthorized, "dashboard_hr.html", gin.H{
 			"message": "Coś poszło nie tak",
@@ -27,6 +26,6 @@ func HrDashboard(c *gin.Context, db *gorm.DB) {
 	}
 
 	c.HTML(http.StatusOK, "dashboard_hr.html", gin.H{
-		"user_name": user_name,
+		"user_name": user.Name,
 	})
 }
