@@ -14,8 +14,9 @@
 
         <nav>
             <ul>
-                <li><a href="/hr/dashboard">Przejdź do HR</a></li>
-                <li><a href="/warehouse/dashboard">Twój dashboard</a></li>
+                <li><a href="/warehouse/dashboard">Strona główna</a></li>
+                <li><a href="/warehouse/my_dashboard_hr">Przejdź do HR</a></li>
+                <li><a href="/warehouse/my_dashboard">Twój dashboard</a></li>
                 <li><a href="/logout">Wyloguj się</a></li>
             </ul>
         </nav>
@@ -31,36 +32,6 @@
                 <button id="break-btn" onclick="startBreak()">Przerwa</button>
                 <button id="stop-btn" onclick="confirmStop()">Stop</button>
             </div>
-
-            <!-- Tabela z historią czasu pracy -->
-            <h3>Historia czasu pracy i przerwy</h3>
-            <table border="1">
-                <thead>
-                    <tr>
-                        <th>Dzień</th>
-                        <th>Przepracowane godziny</th>
-                        <th>Czas przerwy</th>
-                        <th>Rozpoczęcie</th>
-                        <th>Zakończenie</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{ range .WorkHistory }}
-                    <tr>
-                        <td>{{ .Day }}</td>
-                        <td>{{ .WorkedHours }}</td>
-                        <td>{{ .BreakTime }}</td>
-                        <td>{{ .StartTime.Format "15:04:05" }}</td>
-                        <td>{{ .EndTime.Format "15:04:05" }}</td>
-                    </tr>
-                    {{ else }}
-                    <tr>
-                        <td colspan="5">Brak danych do wyświetlenia</td>
-                    </tr>
-                    {{ end }}
-                </tbody>
-            </table>
-
         </section>
     </div>
 

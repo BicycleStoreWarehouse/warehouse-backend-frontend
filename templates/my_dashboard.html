@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mój dashboard</title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Witaj {{.user_name}}</h1>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="/warehouse/dashboard">Strona główna</a></li>
+                <li><a href="/warehouse/my_dashboard_hr">Przejdź do HR</a></li>
+                <li><a href="/warehouse/dashboard">Twój dashboard</a></li>
+                <li><a href="/logout">Wyloguj się</a></li>
+            </ul>
+        </nav>
+
+        <section class="content">
+            <p>Witaj w panelu administracyjnym magazynu. Jesteś zalogowany jako: <strong>{{.user_name}}</strong></p>
+
+            <!-- Tabela z historią czasu pracy -->
+            <h3>Historia czasu pracy i przerwy</h3>
+            <table border="1">
+                <thead>
+                    <tr>
+                        <th>Dzień</th>
+                        <th>Przepracowane godziny</th>
+                        <th>Czas przerwy</th>
+                        <th>Rozpoczęcie</th>
+                        <th>Zakończenie</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range .WorkHistory }}
+                    <tr>
+                        <td>{{ .Day }}</td>
+                        <td>{{ .WorkedHours }}</td>
+                        <td>{{ .BreakTime }}</td>
+                        <td>{{ .StartTime.Format "15:04:05" }}</td>
+                        <td>{{ .EndTime.Format "15:04:05" }}</td>
+                    </tr>
+                    {{ else }}
+                    <tr>
+                        <td colspan="5">Brak danych do wyświetlenia</td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+
+        </section>
+
+    </div>
+    
+</body>
+</html>

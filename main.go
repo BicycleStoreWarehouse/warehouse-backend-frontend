@@ -34,6 +34,8 @@ func main() {
 	warehouse.Use(middleware.LoginRequiredMiddleware(), middleware.WarehouseMiddleware(db), middleware.DatabaseMiddleware(db))
 	{
 		routes.WarehouseRoutes(warehouse, db)
+		routes.DashboardRoutes(warehouse, db)
+		routes.HrRoutes(warehouse, db)
 		warehouse.POST("/save_time", routes.SaveTime) // Trasa zapisywania czasu pracy
 	}
 
