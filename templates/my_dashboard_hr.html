@@ -1,30 +1,32 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard HR</title>
+    <title>Mój HR</title>
     <link rel="stylesheet" href="/styles/style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Witaj {{.user_name}}</h1> <!-- Zmienna message z kontrolera -->
+            <h1>Witaj {{.user_name}}</h1>
         </header>
 
         <nav>
             <ul>
                 <li><a href="/warehouse/dashboard">Strona główna</a></li>
-                <li><a href="/warehouse/dashboard">Przejdź do magazynu</a></li>
-                <li><a href="/hr/dashboard">Twój dashboard</a></li>
+                <li><a href="/warehouse/my_dashboard_hr">Przejdź do HR</a></li>
+                <li><a href="/warehouse/my_dashboard">Twój dashboard</a></li>
                 <li><a href="/logout">Wyloguj się</a></li>
             </ul>
         </nav>
 
         <section class="content">
-            <!-- Możesz dodać dodatkowe informacje lub sekcje w tym miejscu -->
-            <p>Witaj w panelu administracyjnym HR. Jesteś zalogowany jako: <strong>{{.user_name}}</strong></p>
+            <p>Witaj w panelu administracyjnym magazynu. Jesteś zalogowany jako: <strong>{{.user_name}}</strong></p>
+
         </section>
+
     </div>
+    
 </body>
 </html>
