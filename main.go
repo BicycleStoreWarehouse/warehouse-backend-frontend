@@ -11,7 +11,6 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -55,21 +54,4 @@ func main() {
 	r.POST("/save_time", routes.SaveTime)
 
 	r.Run(":8000")
-}
-
-// Funkcja migracji kolumn (zmiana typu danych)
-func migrateDB(db *gorm.DB) {
-	// Zmiana typu kolumny WorkedHours na VARCHAR(8)
-	err := db.Exec("ALTER TABLE working_hours_dailies ALTER COLUMN worked_hours TYPE VARCHAR(8)").Error
-	if err != nil {
-		log.Fatalf("Nie udało się zmienić typu kolumny WorkedHours: %v", err)
-	}
-
-	// Zmiana typu kolumny BreakTime na VARCHAR(8)
-	err = db.Exec("ALTER TABLE working_hours_dailies ALTER COLUMN break_time TYPE VARCHAR(8)").Error
-	if err != nil {
-		log.Fatalf("Nie udało się zmienić typu kolumny BreakTime: %v", err)
-	}
-
-	log.Println("Migracje kolumn zakończone pomyślnie.")
 }

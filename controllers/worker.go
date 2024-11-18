@@ -9,25 +9,23 @@ import (
 )
 
 func WorkerDashboard(c *gin.Context, db *gorm.DB) {
-	user_email, exists := c.Get("user_email")
-
+	userID, exists := c.Get("user_id")
 	if !exists {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-			"message": "Something went wrong",
+			"message": "Musisz być zalogowany",
 		})
 		return
 	}
 
-	user_name, _, err := models.GetUserNameAndSurname(db, user_email.(string))
+	user, err := models.GetUserByID(db, userID.(uint))
 	if err != nil {
 		c.HTML(http.StatusUnauthorized, "dashboard_warehouse.html", gin.H{
-			"message": "Something went wrong",
+			"message": "Coś poszło nie tak",
 		})
 		return
 	}
 
 	c.HTML(http.StatusOK, "dashboard_warehouse.html", gin.H{
-		"user_name": user_name,
+		"user_name": user.Name,
 	})
-
 }

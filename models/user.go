@@ -89,3 +89,25 @@ func GetUserNameAndSurname(db *gorm.DB, email string) (name string, surname stri
 
 	return user.Name, user.Surname, nil
 }
+
+func GetUserByEmail(db *gorm.DB, email string) (*User, error) {
+	var user User
+	err := db.Where("email = ?", email).First(&user).Error
+	return &user, err
+}
+
+func GetUserByID(db *gorm.DB, id uint) (*User, error) {
+	var user User
+	err := db.First(&user, id).Error
+	return &user, err
+}
+
+// Pobranie stanowiska użytkownika na podstawie user_id
+func GetUserPositionByID(db *gorm.DB, userID uint) (string, error) {
+	var user User
+	err := db.Select("position").First(&user, userID).Error
+	if err != nil {
+		return "", err
+	}
+	return user.Position, nil
+}
