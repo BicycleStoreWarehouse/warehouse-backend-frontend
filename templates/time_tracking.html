@@ -32,8 +32,6 @@
                         <th>Dzień</th>
                         <th>Przepracowane godziny</th>
                         <th>Czas przerwy</th>
-                        <th>Rozpoczęcie</th>
-                        <th>Zakończenie</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -42,8 +40,6 @@
                         <td>{{ .Day }}</td>
                         <td>{{ .WorkedHours }}</td>
                         <td>{{ .BreakTime }}</td>
-                        <td>{{ .StartTime.Format "15:04:05" }}</td>
-                        <td>{{ .EndTime.Format "15:04:05" }}</td>
                     </tr>
                     {{ else }}
                     <tr>

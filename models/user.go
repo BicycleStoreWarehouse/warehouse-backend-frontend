@@ -17,8 +17,7 @@ type User struct {
 	Password         string    `gorm:"not null"`
 }
 
-func CreateUser(db *gorm.DB,
-	name, surname, email, position string, dateOfEmployment time.Time, phone, password string) error {
+func CreateUser(db *gorm.DB, name, surname, email, position string, dateOfEmployment time.Time, phone, password string) error {
 
 	user := User{
 		Name:             name,
@@ -35,23 +34,34 @@ func CreateUser(db *gorm.DB,
 	return result.Error
 }
 
-func GetUser(db *gorm.DB, email string) (user User, err error) {
-
-	err = db.Model(&User{}).Select("position").Where("email = ?", email).First(&user).Error
+func GetUserByEmail(db *gorm.DB, email string) (User, error) {
+	var user User
+	err := db.Where("email = ?", email).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return user, nil
+			return user, gorm.ErrRecordNotFound
 		}
 		return user, err
 	}
-
 	return user, nil
 }
 
-func GetUserPosition(db *gorm.DB, email string) (position string, error error) {
+func GetUserByID(db *gorm.DB, id uint) (User, error) {
+	var user User
+	err := db.Model(&User{}).Select("position").Where("id = ?", id).First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return User{}, gorm.ErrRecordNotFound
+		}
+		return User{}, err
+	}
+	return user, nil
+}
+
+func GetUserPositionByID(db *gorm.DB, id uint) (position string, error error) {
 	var user User
 
-	err := db.Model(&User{}).Select("position").Where("email = ?", email).First(&user).Error
+	err := db.Model(&User{}).Select("position").Where("id = ?", id).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return "", nil
@@ -62,52 +72,16 @@ func GetUserPosition(db *gorm.DB, email string) (position string, error error) {
 	return user.Position, nil
 }
 
-func GetUserPassword(db *gorm.DB, email string) (password string, error error) {
+func GetUsersPassword(db *gorm.DB, email string) (password string, error error) {
 	var user User
 
 	err := db.Model(&User{}).Select("password").Where("email = ?", email).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return "not found", nil
+			return "", nil
 		}
 		return "", err
 	}
 
 	return user.Password, nil
-}
-
-func GetUserNameAndSurname(db *gorm.DB, email string) (name string, surname string, error error) {
-	var user User
-
-	err := db.Model(&User{}).Select("name", "surname").Where("email = ?", email).First(&user).Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return "", "", nil
-		}
-		return "", "", err
-	}
-
-	return user.Name, user.Surname, nil
-}
-
-func GetUserByEmail(db *gorm.DB, email string) (*User, error) {
-	var user User
-	err := db.Where("email = ?", email).First(&user).Error
-	return &user, err
-}
-
-func GetUserByID(db *gorm.DB, id uint) (*User, error) {
-	var user User
-	err := db.First(&user, id).Error
-	return &user, err
-}
-
-// Pobranie stanowiska użytkownika na podstawie user_id
-func GetUserPositionByID(db *gorm.DB, userID uint) (string, error) {
-	var user User
-	err := db.Select("position").First(&user, userID).Error
-	if err != nil {
-		return "", err
-	}
-	return user.Position, nil
 }

@@ -16,7 +16,7 @@
             <ul>
                 <li><a href="/warehouse/dashboard">Strona główna</a></li>
                 <li><a href="/warehouse/my_dashboard_hr">Przejdź do HR</a></li>
-                <li><a href="/warehouse/my_dashboard">Twój dashboard</a></li>
+                <li><a href="/warehouse/time-summary">Raport godzinowy</a></li>
                 <li><a href="/logout">Wyloguj się</a></li>
             </ul>
         </nav>
@@ -37,13 +37,13 @@
 
     <script>
         let workingTimer, breakTimer;
-        let workingTime = 0; // czas pracy w sekundach
-        let breakTime = 1800; // czas przerwy w sekundach
+        let workingTime = 0;
+        let breakTime = 1800;
         let isWorking = false;
         let isOnBreak = false;
-        let startTime = null;  // Zmienna do przechowywania godziny rozpoczęcia pracy
-        let endTime = null;    // Zmienna do przechowywania godziny zakończenia pracy
-    
+        let startTime = null;  
+        let endTime = null;
+
         function formatTime(seconds) {
             const hours = Math.floor(seconds / 3600);
             const minutes = Math.floor((seconds % 3600) / 60);
@@ -63,7 +63,7 @@
             }
     
             if (!isWorking) {
-                startTime = new Date();  // Zapamiętaj godzinę rozpoczęcia pracy
+                startTime = new Date();
                 workingTimer = setInterval(() => {
                     workingTime++;
                     updateDisplay();
@@ -114,18 +114,15 @@
             clearInterval(breakTimer);
     
             // Zapisz czas pracy i przerwy do bazy danych przez backend
-            fetch('/warehouse/save_time', {
+            fetch('/warehouse/save-time', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    user_id: 1, // Przykładowe ID użytkownika; w produkcji zastąp dynamicznym ID
                     worked_hours: workingTime,
-                    break_time: 1800 - breakTime, // Czas przerwy wykorzystanej
-                    start_time: startTime.toISOString(),  // Wyślij godzinę rozpoczęcia
-                    end_time: endTime.toISOString()     // Wyślij godzinę zakończenia
-                })
+                    break_time: 1800 - breakTime,
+                    })
             }).then(response => response.json())
             .then(data => {
                 console.log('Czas zapisany:', data);

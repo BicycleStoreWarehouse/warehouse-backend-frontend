@@ -7,7 +7,6 @@ toolchain go1.22.8
 require (
 	github.com/gin-contrib/sessions v1.0.1
 	github.com/gin-gonic/gin v1.10.0
-	go.starlark.net v0.0.0-20240925182052-1207426daebd
 	gorm.io/driver/postgres v1.5.9
 	gorm.io/gorm v1.25.12
 )

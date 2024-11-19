@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
+	"time"
 	"warehouse/models"
 
 	"github.com/gin-gonic/gin"
@@ -30,8 +32,9 @@ func WorkerDashboard(c *gin.Context, db *gorm.DB) {
 	})
 }
 
-func MyDashboard(c *gin.Context, db *gorm.DB) {
+func SaveTime(c *gin.Context, db *gorm.DB) {
 	userID, exists := c.Get("user_id")
+
 	if !exists {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
 			"message": "Musisz być zalogowany",
@@ -39,37 +42,50 @@ func MyDashboard(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	user, err := models.GetUserByID(db, userID.(uint))
-	if err != nil {
-		c.HTML(http.StatusUnauthorized, "my_dashboard.html", gin.H{
-			"message": "Coś poszło nie tak",
-		})
+	var workAndBreakTime struct {
+		WorkedHours int `json:"worked_hours"`
+		BreakTime   int `json:"break_time"`
+	}
+
+	if err := c.ShouldBindJSON(&workAndBreakTime); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nieprawidłowe dane wejściowe"})
 		return
 	}
 
-	c.HTML(http.StatusOK, "my_dashboard.html", gin.H{
-		"user_name": user.Name,
-	})
+	workedHours := time.Duration(workAndBreakTime.WorkedHours) * time.Second
+	breakTime := time.Duration(workAndBreakTime.BreakTime) * time.Second
+
+	err := models.DailyTimekeeping(int(userID.(uint)), workedHours, breakTime, db)
+
+	if err != nil {
+		log.Printf("Błąd zapisywania czasu pracy: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Błąd podczas zapisywania czasu pracy"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "Czas pracy zapisany pomyślnie"})
 }
 
-func MyHrDashboard(c *gin.Context, db *gorm.DB) {
-	userID, exists := c.Get("user_id")
-	if !exists {
+func TimeTracking(c *gin.Context, db *gorm.DB) {
+	userID, exists_id := c.Get("user_id")
+
+	if !exists_id {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
-			"message": "Musisz być zalogowany",
+			"error": "Musisz być zalogowany",
 		})
 		return
 	}
 
-	user, err := models.GetUserByID(db, userID.(uint))
+	daily_report, err := models.GetDailyReportForUser(db, int(userID.(uint)))
+
 	if err != nil {
-		c.HTML(http.StatusUnauthorized, "my_dashboard_hr.html", gin.H{
-			"message": "Coś poszło nie tak",
+		c.HTML(http.StatusUnauthorized, "time_tracking.html", gin.H{
+			"message": "Błąd połączenia z bazą danych",
 		})
 		return
 	}
 
-	c.HTML(http.StatusOK, "my_dashboard_hr.html", gin.H{
-		"user_name": user.Name,
+	c.HTML(http.StatusOK, "time_tracking.html", gin.H{
+		"WorkHistory": daily_report,
 	})
 }

@@ -15,7 +15,9 @@ import (
 
 func main() {
 	store := cookie.NewStore([]byte("secret"))
+
 	r := gin.Default()
+
 	r.Static("/styles", "./styles")
 	r.LoadHTMLGlob("templates/*")
 	r.Use(sessions.Sessions("warehouse", store))
@@ -31,16 +33,13 @@ func main() {
 	routes.UnauthorizedRoutes(r, db)
 
 	warehouse := r.Group("/warehouse")
-	warehouse.Use(middleware.LoginRequiredMiddleware(), middleware.WarehouseMiddleware(db), middleware.DatabaseMiddleware(db))
+	warehouse.Use(middleware.LoginRequiredMiddleware(), middleware.PositionMiddleware(db))
 	{
 		routes.WarehouseRoutes(warehouse, db)
-		routes.DashboardRoutes(warehouse, db)
-		routes.HrRoutes(warehouse, db)
-		warehouse.POST("/save_time", routes.SaveTime) // Trasa zapisywania czasu pracy
 	}
 
 	hr := r.Group("/hr")
-	hr.Use(middleware.LoginRequiredMiddleware(), middleware.HrMiddleware(db))
+	hr.Use(middleware.LoginRequiredMiddleware(), middleware.PositionMiddleware(db))
 	{
 		routes.HumanResourcesRoutes(hr, db)
 	}
@@ -52,8 +51,6 @@ func main() {
 
 		c.Redirect(http.StatusFound, "/login")
 	})
-
-	r.POST("/save_time", routes.SaveTime)
 
 	r.Run(":8000")
 }

@@ -1,29 +1,21 @@
 package models
 
 import (
-	"fmt"
 	"log"
 	"time"
 
 	"gorm.io/gorm"
+
+	"warehouse/helpers"
 )
 
 type WorkingHoursDaily struct {
 	gorm.Model
-	UserID      int       `gorm:"not null"`
-	User        User      `gorm:"foreignKey:UserID"`
-	Day         string    `gorm:"not null"`
-	WorkedHours string    `gorm:"type:varchar(8);not null"`
-	BreakTime   string    `gorm:"type:varchar(8);not null"`
-	StartTime   time.Time `json:"start_time"`
-	EndTime     time.Time `json:"end_time"`
-}
-
-type TimeTracking struct {
-	gorm.Model
-	UserID      int `gorm:"not null"`
-	WorkingTime int
-	BreakTime   int
+	UserID      int    `gorm:"not null"`
+	User        User   `gorm:"foreignKey:UserID"`
+	Day         string `gorm:"not null"`
+	WorkedHours string `gorm:"type:varchar(8);not null"`
+	BreakTime   string `gorm:"type:varchar(8);not null"`
 }
 
 type WorkingHoursMonthly struct {
@@ -34,20 +26,17 @@ type WorkingHoursMonthly struct {
 	TotalWorkedHours string `gorm:"type:varchar(8);not null"`
 }
 
-func DailyTimekeeping(user_id int, worked_hours time.Duration, break_time time.Duration, startTime time.Time, endTime time.Time, db *gorm.DB) error {
+func DailyTimekeeping(user_id int, worked_hours time.Duration, break_time time.Duration, db *gorm.DB) error {
 	today := time.Now().Format("2006-01-02")
 
-	// Konwersja czasu na format hh:mm:ss
-	workedHoursStr := formatDurationToHHMMSS(worked_hours)
-	breakTimeStr := formatDurationToHHMMSS(break_time)
+	workedHoursStr := helpers.FormatDurationToHHMMSS(worked_hours)
+	breakTimeStr := helpers.FormatDurationToHHMMSS(break_time)
 
 	daily_time := WorkingHoursDaily{
 		UserID:      user_id,
 		Day:         today,
 		WorkedHours: workedHoursStr,
 		BreakTime:   breakTimeStr,
-		StartTime:   startTime,
-		EndTime:     endTime,
 	}
 
 	log.Printf("Zapisujemy czas pracy: UserID: %d, Dzień: %s, WorkedHours: %s, BreakTime: %s", user_id, today, workedHoursStr, breakTimeStr)
@@ -58,14 +47,6 @@ func DailyTimekeeping(user_id int, worked_hours time.Duration, break_time time.D
 	}
 	log.Println("Rekord czasu pracy zapisany pomyślnie")
 	return nil
-}
-
-// Funkcja pomocnicza do konwersji time.Duration na hh:mm:ss
-func formatDurationToHHMMSS(d time.Duration) string {
-	hours := int(d.Hours())
-	minutes := int(d.Minutes()) % 60
-	seconds := int(d.Seconds()) % 60
-	return fmt.Sprintf("%02d:%02d:%02d", hours, minutes, seconds)
 }
 
 func MonthlyTimekeeping(user_id int, time_duration string, db *gorm.DB) error {
@@ -87,4 +68,19 @@ func MonthlyTimekeeping(user_id int, time_duration string, db *gorm.DB) error {
 		result = db.Save(&monthlyHours)
 	}
 	return result.Error
+}
+
+func GetDailyReportForUser(db *gorm.DB, userID int) ([]WorkingHoursDaily, error) {
+
+	var workingHours []WorkingHoursDaily
+
+	// Pobieranie wszystkich rekordów dla danego użytkownika
+	result := db.Where("user_id = ?", userID).Find(&workingHours)
+	if result.Error != nil {
+		log.Printf("Błąd podczas pobierania danych godzin pracy dla użytkownika %d: %v", userID, result.Error)
+		return nil, result.Error
+	}
+
+	// Zwracanie pobranych rekordów
+	return workingHours, nil
 }

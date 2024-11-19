@@ -11,16 +11,12 @@ func WarehouseRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	r.GET("/dashboard", func(c *gin.Context) {
 		controllers.WorkerDashboard(c, db)
 	})
-}
 
-func DashboardRoutes(r *gin.RouterGroup, db *gorm.DB) {
-	r.GET("/my_dashboard", func(c *gin.Context) {
-		controllers.MyDashboard(c, db)
+	r.POST("/save-time", func(c *gin.Context) {
+		controllers.SaveTime(c, db)
 	})
-}
 
-func HrRoutes(r *gin.RouterGroup, db *gorm.DB) {
-	r.GET("/my_dashboard_hr", func(c *gin.Context) {
-		controllers.MyHrDashboard(c, db)
+	r.GET("/time-summary", func(c *gin.Context) {
+		controllers.TimeTracking(c, db)
 	})
 }
