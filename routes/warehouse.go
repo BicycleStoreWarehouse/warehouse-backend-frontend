@@ -19,4 +19,33 @@ func WarehouseRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	r.GET("/time-summary", func(c *gin.Context) {
 		controllers.TimeTracking(c, db)
 	})
+
+	r.GET("/products", func(c *gin.Context) {
+		controllers.ListProducts(c, db)
+	})
+
+	r.POST("/products", func(c *gin.Context) {
+		controllers.CreateProduct(c, db)
+	})
+
+	r.GET("/orders", func(c *gin.Context) {
+		controllers.ListOrdersWorker(c, db)
+	})
+
+	r.GET("/orders/:id", func(c *gin.Context) {
+		controllers.DetailOrder(c, db)
+	})
+
+	r.PUT("/orders/:id", func(c *gin.Context) {
+		controllers.UpdateOrder(c, db)
+	})
+
+	r.GET("/applications", func(c *gin.Context) {
+		controllers.ListAplicationsWorker(c, db)
+	})
+
+	r.POST("/applications", func(c *gin.Context) {
+		controllers.CreateApplication(c, db)
+	})
+
 }

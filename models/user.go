@@ -17,7 +17,7 @@ type User struct {
 	Password         string    `gorm:"not null"`
 }
 
-func CreateUser(db *gorm.DB, name, surname, email, position string, dateOfEmployment time.Time, phone, password string) error {
+func CreateUser(db *gorm.DB, name, surname, email, position string, dateOfEmployment time.Time, phone, password string) (User, error) {
 
 	user := User{
 		Name:             name,
@@ -31,7 +31,7 @@ func CreateUser(db *gorm.DB, name, surname, email, position string, dateOfEmploy
 
 	result := db.Create(&user)
 
-	return result.Error
+	return user, result.Error
 }
 
 func GetUserByEmail(db *gorm.DB, email string) (User, error) {
