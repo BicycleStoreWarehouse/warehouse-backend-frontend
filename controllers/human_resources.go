@@ -29,3 +29,39 @@ func HrDashboard(c *gin.Context, db *gorm.DB) {
 		"user_name": user.Name,
 	})
 }
+
+func ListWorkers(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "List Workers"})
+}
+
+func CreateWorker(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "Create Worker"})
+}
+
+func DetailWorker(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "Detail Worker"})
+}
+
+func ListOrdersHR(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "List Orders"})
+}
+
+func CreateOrder(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "Create Order"})
+}
+
+func ListAplicationsHR(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "List Applications"})
+}
+
+func DetailApplication(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "Detail Application"})
+}
+
+func UpdateApplication(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "Update Application"})
+}
+
+func ShowReport(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "Show Report"})
+}

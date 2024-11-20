@@ -89,3 +89,32 @@ func TimeTracking(c *gin.Context, db *gorm.DB) {
 		"WorkHistory": daily_report,
 	})
 }
+
+
+func ListProducts(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "List Products"})
+}
+
+func CreateProduct(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "Create Product"})
+}
+
+func ListOrdersWorker(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "List Orders"})
+}
+
+func DetailOrder(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "Detail Order"})
+}
+
+func UpdateOrder(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "Update Order"})
+}
+
+func ListAplicationsWorker(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "List Applications"})
+}
+
+func CreateApplication(c *gin.Context, db *gorm.DB) {
+	c.JSON(http.StatusOK, gin.H{"message": "Create Application"})
+}

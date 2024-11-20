@@ -27,7 +27,26 @@ func main() {
 		log.Fatal("Błąd połączenia z bazą danych:", err)
 	}
 
-	db.AutoMigrate(&models.User{}, &models.WorkingHoursDaily{}, &models.WorkingHoursMonthly{})
+	db.AutoMigrate(
+		&models.Address{},
+		&models.Supplier{},
+		&models.Producer{},
+		&models.Client{},
+		&models.CategoryBicycleParts{},
+		&models.BicyclePart{},
+		&models.CategoryBicycle{},
+		&models.Bicycle{},
+		&models.User{},
+		&models.Delivery{},
+		&models.DeliveryProduct{},
+		&models.Order{},
+		&models.OrderProduct{},
+		&models.WorkingHoursDaily{},
+		&models.WorkingHoursMonthly{},
+		&models.PurchaseInvoice{},
+		&models.SalesInvoice{},
+	)
+
 	database.LoadExampleData(db)
 
 	routes.UnauthorizedRoutes(r, db)

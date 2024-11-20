@@ -26,6 +26,29 @@ type WorkingHoursMonthly struct {
 	TotalWorkedHours string `gorm:"type:varchar(8);not null"`
 }
 
+func CreateWorkingHoursDaily(db *gorm.DB, userID int, day, workedHours, breakTime string) (WorkingHoursDaily, error) {
+    workingHours := WorkingHoursDaily{
+        UserID:      userID,
+        Day:         day,
+        WorkedHours: workedHours,
+        BreakTime:   breakTime,
+    }
+
+    result := db.Create(&workingHours)
+    return workingHours, result.Error
+}
+
+func CreateWorkingHoursMonthly(db *gorm.DB, userID int, month, totalWorkedHours string) (WorkingHoursMonthly, error) {
+    workingHours := WorkingHoursMonthly{
+        UserID:           userID,
+        Month:            month,
+        TotalWorkedHours: totalWorkedHours,
+    }
+
+    result := db.Create(&workingHours)
+    return workingHours, result.Error
+}
+
 func DailyTimekeeping(user_id int, worked_hours time.Duration, break_time time.Duration, db *gorm.DB) error {
 	today := time.Now().Format("2006-01-02")
 
@@ -74,13 +97,11 @@ func GetDailyReportForUser(db *gorm.DB, userID int) ([]WorkingHoursDaily, error)
 
 	var workingHours []WorkingHoursDaily
 
-	// Pobieranie wszystkich rekordów dla danego użytkownika
 	result := db.Where("user_id = ?", userID).Find(&workingHours)
 	if result.Error != nil {
 		log.Printf("Błąd podczas pobierania danych godzin pracy dla użytkownika %d: %v", userID, result.Error)
 		return nil, result.Error
 	}
 
-	// Zwracanie pobranych rekordów
 	return workingHours, nil
 }
