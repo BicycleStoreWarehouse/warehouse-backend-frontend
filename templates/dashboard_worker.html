@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR panel</title>
+    <link rel="stylesheet" href="/styles/style.css">
+    <style>
+        .submenu {
+            display: none;
+        }
+        .tab-content {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Witaj {{.user_name}}</h1>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="/warehouse/dashboard">Strona główna</a></li>
+                <li><a href="/warehouse/dashboard-worker">Przejdź do HR</a></li>
+                <li><a href="/warehouse/time-summary">Raport godzinowy</a></li>
+                <li><a href="/logout">Wyloguj się</a></li>
+            </ul>
+        </nav>
+        <section class="content">
+            <p>Witaj w panelu administracyjnym magazynu. Jesteś zalogowany jako: <strong>{{.user_name}}</strong></p>
+
+            <nav>
+                <ul>
+                    <li><a href="#" onclick="showSubmenu('data-menu')">Moje dane</a></li>
+                    <li><a href="#" onclick="showSubmenu('requests-menu')">Wnioski</a></li>
+                </ul>
+            </nav>
+
+            <!-- Submenu for "Moje dane" -->
+            <div id="data-menu" class="submenu">
+                <nav>
+                    <ul>
+                        <li><a href="#" onclick="showTab('personal-data')">Dane osobowe</a></li>
+                        <li><a href="#" onclick="showTab('address-data')">Dane adresowe</a></li>
+                        <li><a href="#" onclick="showTab('bank-data')">Dane bankowe</a></li>
+                        <li><a href="#" onclick="showTab('work-location')">Lokalizacja pracy</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Submenu for "Wnioski" -->
+            <div id="requests-menu" class="submenu">
+                <p>Tutaj będzie sekcja wniosków.</p>
+            </div>
+
+            <!-- Tabs -->
+            <div id="personal-data" class="tab-content">
+                <h2>Dane osobowe</h2>
+                <p>Imię: <strong>{{.user_name}}</strong></p>
+                <p>Nazwisko: <strong>{{.user_surname}}</strong></p>
+                <p>Email: <strong>{{.user_email}}</strong></p>
+                <p>Telefon: <strong>{{.user_phone}}</strong></p>
+            </div>
+
+            <div id="address-data" class="tab-content">
+                <h2>Dane adresowe</h2>
+                <p>Ulica: <strong>{{.user_street}}</strong></p>
+                <p>Miasto: <strong>{{.user_city}}</strong></p>
+                <p>Województwo: <strong>{{.user_state}}</strong></p>
+                <p>Kod pocztowy: <strong>{{.user_zip}}</strong></p>
+                <p>Kraj: <strong>{{.user_country}}</strong></p>
+            </div>
+
+            <div id="bank-data" class="tab-content">
+                <h2>Dane bankowe</h2>
+                <p>Numer konta: <strong>{{.user_bankAccount}}</strong></p>
+                <p>Nazwa banku: <strong>{{.user_nameBank}}</strong></p>
+            </div>
+
+            <div id="work-location" class="tab-content">
+                <h2>Dane pracy</h2>
+                <p>Stanowisko: {{.user_position}}</p>
+                <p>Magazyn: {{.user_location}}</p>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function showSubmenu(menu) {
+            const submenus = document.querySelectorAll('.submenu');
+            submenus.forEach(submenu => submenu.style.display = 'none');
+
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.style.display = 'none');
+
+            const selectedMenu = document.getElementById(menu);
+            if (selectedMenu) {
+                selectedMenu.style.display = 'block';
+            }
+        }
+
+        function showTab(tabId) {
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.style.display = 'none');
+
+            const selectedTab = document.getElementById(tabId);
+            if (selectedTab) {
+                selectedTab.style.display = 'block';
+            }
+        }
+    </script>
+    
+</body>
+</html>
