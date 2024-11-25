@@ -29,8 +29,6 @@ func Login(c *gin.Context, db *gorm.DB) {
 	}
 
 	if user.Password != password {
-		log.Printf("Invalid password for email: %s", password)
-		log.Printf("Invalid password for email: %s", user.Password)
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
 			"error": "Email lub hasło jest nieprawidłowe",
 		})
@@ -41,9 +39,11 @@ func Login(c *gin.Context, db *gorm.DB) {
 	session.Set("user_id", user.ID)
 	session.Save()
 
-	if user.Position == "Magazynowy" {
+	position, _ := models.GetUserPositionByID(db, user.ID)
+
+	if position == "Magazynowy" {
 		c.Redirect(http.StatusFound, "/warehouse/dashboard")
-	} else if user.Position == "HR" {
+	} else if position == "HR" {
 		c.Redirect(http.StatusFound, "/hr/dashboard")
 	} else {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{

@@ -31,7 +31,7 @@ func main() {
 		&models.Address{},
 		&models.Supplier{},
 		&models.Producer{},
-		&models.Client{},
+		&models.Customer{},
 		&models.CategoryBicycleParts{},
 		&models.BicyclePart{},
 		&models.CategoryBicycle{},

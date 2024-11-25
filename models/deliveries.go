@@ -6,7 +6,6 @@ type Delivery struct {
     gorm.Model
     UserID        uint
     User          User       	 `gorm:"foreignKey:UserID"`
-    OrderProducts []OrderProduct `gorm:"foreignKey:OrderID"`
 }
 
 type DeliveryProduct struct {

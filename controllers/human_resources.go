@@ -25,43 +25,74 @@ func HrDashboard(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	users, _ := models.GetAllUsers(db)
+
+	sales_invoices, purchase_invoices, _ := models.GetPendingInvoices(db)
+
+	var purchase_invoices_data []map[string]interface{}
+	for _, invoice := range purchase_invoices {
+		purchase_invoice_data := map[string]interface{}{
+			"ID":           invoice.ID,
+			"SupplierName": invoice.Supplier.Name,
+			"NetPrice":     invoice.NetPrice,
+			"GrossPrice":   invoice.GrossPrice,
+			"StatusName":   invoice.Status.Name,
+		}
+		purchase_invoices_data = append(purchase_invoices_data, purchase_invoice_data)
+	}
+
+	var sales_invoices_data []map[string]interface{}
+	for _, invoice := range sales_invoices {
+		sales_invoice_data := map[string]interface{}{
+			"ID":           invoice.ID,
+			"SupplierName": invoice.Customer.Name,
+			"NetPrice":     invoice.NetPrice,
+			"GrossPrice":   invoice.GrossPrice,
+			"StatusName":   invoice.Status.Name,
+		}
+		sales_invoices_data = append(sales_invoices_data, sales_invoice_data)
+	}
+
 	c.HTML(http.StatusOK, "dashboard_hr.html", gin.H{
-		"user_name": user.Name,
+		"user_name":                 user.Name,
+		"users":                     users,
+		"pending_purchase_invoices": purchase_invoices_data,
+		"pending_sales_invoices":    sales_invoices_data,
 	})
 }
 
 func ListWorkers(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "List Workers"})
+	c.HTML(http.StatusOK, "list_workers.html", gin.H{"message": "List Workers"})
 }
 
 func CreateWorker(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "Create Worker"})
+	c.HTML(http.StatusOK, "create_worker.html", gin.H{"message": "Create Worker"})
 }
 
 func DetailWorker(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "Detail Worker"})
+	c.HTML(http.StatusOK, "detail_worker.html", gin.H{"message": "Detail Worker"})
 }
 
 func ListOrdersHR(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "List Orders"})
+	c.HTML(http.StatusOK, "list_orders_hr.html", gin.H{"message": "List Orders"})
 }
 
 func CreateOrder(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "Create Order"})
+	c.HTML(http.StatusOK, "create_order.html", gin.H{"message": "Create Order"})
 }
 
 func ListAplicationsHR(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "List Applications"})
+	c.HTML(http.StatusOK, "list_applications_hr.html", gin.H{"message": "List Applications"})
 }
 
 func DetailApplication(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "Detail Application"})
+	c.HTML(http.StatusOK, "detail_application.html", gin.H{"message": "Detail Application"})
 }
 
 func UpdateApplication(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "Update Application"})
+	c.HTML(http.StatusOK, "update_application.html", gin.H{"message": "Update Application"})
 }
 
 func ShowReport(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "Show Report"})
+	c.HTML(http.StatusOK, "show_report.html", gin.H{"message": "Show Report"})
 }

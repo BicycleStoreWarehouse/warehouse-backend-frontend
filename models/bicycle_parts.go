@@ -7,13 +7,11 @@ import (
 type CategoryBicycleParts struct {
 	gorm.Model
 	Name          string          `gorm:"unique;not null"`
-	BicycleParts  []BicyclePart   `gorm:"foreignKey:CategoryID"`
 }
 
 type BicyclePart struct {
 	gorm.Model
 	Name             	 string    `gorm:"not null"`
-	Type             	 string    
 	CategoryID       	 uint      `gorm:"not null"`
 	Category        	 CategoryBicycleParts
 	ProducerID        	 uint      `gorm:"not null"`        
@@ -33,10 +31,9 @@ func CreateCategoryBicycleParts(db *gorm.DB, name string) (CategoryBicycleParts,
     return category, result.Error
 }
 
-func CreateBicyclePart(db *gorm.DB, name, partType string, categoryID, producerID uint, price float32, quantity, lastQuantityAdded int) (BicyclePart, error) {
+func CreateBicyclePart(db *gorm.DB, name string, categoryID uint, producerID uint, price float32, quantity, lastQuantityAdded int) (BicyclePart, error) {
     bicyclePart := BicyclePart{
         Name:              name,
-        Type:              partType,
         CategoryID:        categoryID,
         ProducerID:        producerID,
         Price:             price,
