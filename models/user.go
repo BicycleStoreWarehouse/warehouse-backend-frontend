@@ -21,9 +21,16 @@ type User struct {
 	DateOfEmployment time.Time `gorm:"not null"`
 	Phone            string    `gorm:"unique;not null"`
 	Password         string    `gorm:"not null"`
+	Street           string    `gorm:"not null"`
+	City             string    `gorm:"not null"`
+	State            string    `gorm:"not null"`
+	Zip              string    `gorm:"not null"`
+	Country          string    `gorm:"not null"`
+	BankAccount      string    `gorm:"unique;not null"`
+	NameBank         string    `gorm:"not null"`
 }
 
-func CreateUser(db *gorm.DB, name string, surname string, email string, position Position, dateOfEmployment time.Time, phone, password string) (User, error) {
+func CreateUser(db *gorm.DB, name string, surname string, email string, position Position, dateOfEmployment time.Time, phone, password, street, city, state, zip, country, bankAccount, nameBank string) (User, error) {
 
 	user := User{
 		Name:             name,
@@ -33,6 +40,13 @@ func CreateUser(db *gorm.DB, name string, surname string, email string, position
 		DateOfEmployment: dateOfEmployment,
 		Phone:            phone,
 		Password:         password,
+		Street:           street,
+		City:             city,
+		State:            state,
+		Zip:              zip,
+		Country:          country,
+		BankAccount:      bankAccount,
+		NameBank:         nameBank,
 	}
 
 	result := db.Create(&user)

@@ -32,6 +32,38 @@ func WorkerDashboard(c *gin.Context, db *gorm.DB) {
 	})
 }
 
+func DashboardWorker(c *gin.Context, db *gorm.DB) {
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"message": "Musisz być zalogowany",
+		})
+		return
+	}
+
+	user, err := models.GetUserByID(db, userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusUnauthorized, "dashboard_worker.html", gin.H{
+			"message": "Coś poszło nie tak",
+		})
+		return
+	}
+
+	c.HTML(http.StatusOK, "dashboard_worker.html", gin.H{
+		"user_name":        user.Name,
+		"user_surname":     user.Surname,
+		"user_email":       user.Email,
+		"user_phone":       user.Phone,
+		"user_street":      user.Street,
+		"user_city":        user.City,
+		"user_state":       user.State,
+		"user_zip":         user.Zip,
+		"user_country":     user.Country,
+		"user_bankAccount": user.BankAccount,
+		"user_nameBank":    user.NameBank,
+	})
+}
+
 func SaveTime(c *gin.Context, db *gorm.DB) {
 	userID, exists := c.Get("user_id")
 
@@ -89,7 +121,6 @@ func TimeTracking(c *gin.Context, db *gorm.DB) {
 		"WorkHistory": daily_report,
 	})
 }
-
 
 func ListProducts(c *gin.Context, db *gorm.DB) {
 	c.HTML(http.StatusOK, "list_products.html", gin.H{"message": "List Products"})
