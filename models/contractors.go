@@ -13,80 +13,78 @@ type Address struct {
 
 type Supplier struct {
 	gorm.Model
-	Name       string  `gorm:"not null"`
-	Phone      string  `gorm:"not null"`
-	Email      string  `gorm:"not null"`
-	AddressID  uint
-	Address    Address
+	Name      string `gorm:"not null"`
+	Phone     string `gorm:"not null"`
+	Email     string `gorm:"not null"`
+	AddressID uint
+	Address   Address
 }
 
 type Producer struct {
 	gorm.Model
-	Name       string  `gorm:"not null"`
-	Country    string  `gorm:"not null"`
-	Phone      string  `gorm:"not null"`
-	Email      string  `gorm:"not null"`
-	AddressID  uint
-	Address    Address
-	Bicycles   []Bicycle
+	Name      string `gorm:"not null"`
+	Country   string `gorm:"not null"`
+	Phone     string `gorm:"not null"`
+	Email     string `gorm:"not null"`
+	AddressID uint
+	Address   Address
 }
 
-type Client struct {
+type Customer struct {
 	gorm.Model
-	Name       string  `gorm:"not null"`
-	Phone      string  `gorm:"not null"`
-	Email      string  `gorm:"not null"`
-	AddressID  uint
-	Address    Address `gorm:"foreignKey:AddressID"`
+	Name      string `gorm:"not null"`
+	Phone     string `gorm:"not null"`
+	Email     string `gorm:"not null"`
+	AddressID uint
+	Address   Address `gorm:"foreignKey:AddressID"`
 }
 
+func CreateAddress(db *gorm.DB, street string, city string, state string, postalCode string, country string) (Address, error) {
+	address := Address{
+		Street:     street,
+		City:       city,
+		State:      state,
+		PostalCode: postalCode,
+		Country:    country,
+	}
 
-func CreateAddress(db *gorm.DB, street, city, state, postalCode, country string) (Address, error) {
-    address := Address{
-        Street:    street,
-        City:      city,
-        State:     state,
-        PostalCode: postalCode,
-        Country:   country,
-    }
-
-    result := db.Create(&address)
-    return address, result.Error
+	result := db.Create(&address)
+	return address, result.Error
 }
 
-func CreateSupplier(db *gorm.DB, name, phone, email string, addressID uint) (Supplier, error) {
-    supplier := Supplier{
-        Name:      name,
-        Phone:     phone,
-        Email:     email,
-        AddressID: addressID,
-    }
+func CreateSupplier(db *gorm.DB, name string, phone string, email string, addressID uint) (Supplier, error) {
+	supplier := Supplier{
+		Name:      name,
+		Phone:     phone,
+		Email:     email,
+		AddressID: addressID,
+	}
 
-    result := db.Create(&supplier)
-    return supplier, result.Error
+	result := db.Create(&supplier)
+	return supplier, result.Error
 }
 
-func CreateProducer(db *gorm.DB, name, country, phone, email string, addressID uint) (Producer, error) {
-    producer := Producer{
-        Name:      name,
-        Country:   country,
-        Phone:     phone,
-        Email:     email,
-        AddressID: addressID,
-    }
+func CreateProducer(db *gorm.DB, name string, country string, phone string, email string, addressID uint) (Producer, error) {
+	producer := Producer{
+		Name:      name,
+		Country:   country,
+		Phone:     phone,
+		Email:     email,
+		AddressID: addressID,
+	}
 
-    result := db.Create(&producer)
-    return producer, result.Error
+	result := db.Create(&producer)
+	return producer, result.Error
 }
 
-func CreateClient(db *gorm.DB, name, phone, email string, addressID uint) (Client, error) {
-    client := Client{
-        Name:      name,
-        Phone:     phone,
-        Email:     email,
-        AddressID: addressID,
-    }
+func CreateCustomer(db *gorm.DB, name string, phone string, email string, addressID uint) (Customer, error) {
+	client := Customer{
+		Name:      name,
+		Phone:     phone,
+		Email:     email,
+		AddressID: addressID,
+	}
 
-    result := db.Create(&client)
-    return client, result.Error
+	result := db.Create(&client)
+	return client, result.Error
 }

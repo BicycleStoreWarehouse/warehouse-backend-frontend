@@ -55,7 +55,7 @@ func SaveTime(c *gin.Context, db *gorm.DB) {
 	workedHours := time.Duration(workAndBreakTime.WorkedHours) * time.Second
 	breakTime := time.Duration(workAndBreakTime.BreakTime) * time.Second
 
-	err := models.DailyTimekeeping(int(userID.(uint)), workedHours, breakTime, db)
+	err := models.DailyTimekeeping(userID.(uint), workedHours, breakTime, db)
 
 	if err != nil {
 		log.Printf("Błąd zapisywania czasu pracy: %v", err)
@@ -76,7 +76,7 @@ func TimeTracking(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	daily_report, err := models.GetDailyReportForUser(db, int(userID.(uint)))
+	daily_report, err := models.GetDailyReportForUser(db, userID.(uint))
 
 	if err != nil {
 		c.HTML(http.StatusUnauthorized, "time_tracking.html", gin.H{
@@ -92,29 +92,29 @@ func TimeTracking(c *gin.Context, db *gorm.DB) {
 
 
 func ListProducts(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "List Products"})
+	c.HTML(http.StatusOK, "list_products.html", gin.H{"message": "List Products"})
 }
 
 func CreateProduct(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "Create Product"})
+	c.HTML(http.StatusOK, "create_product.html", gin.H{"message": "Create Product"})
 }
 
 func ListOrdersWorker(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "List Orders"})
+	c.HTML(http.StatusOK, "list_orders_worker.html", gin.H{"message": "List Orders"})
 }
 
 func DetailOrder(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "Detail Order"})
+	c.HTML(http.StatusOK, "detail_order.html", gin.H{"message": "Detail Order"})
 }
 
 func UpdateOrder(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "Update Order"})
+	c.HTML(http.StatusOK, "update_order.html", gin.H{"message": "Update Order"})
 }
 
 func ListAplicationsWorker(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "List Applications"})
+	c.HTML(http.StatusOK, "list_applications_worker.html", gin.H{"message": "List Applications"})
 }
 
 func CreateApplication(c *gin.Context, db *gorm.DB) {
-	c.JSON(http.StatusOK, gin.H{"message": "Create Application"})
+	c.HTML(http.StatusOK, "create_application.html", gin.H{"message": "Create Application"})
 }

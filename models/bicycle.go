@@ -5,7 +5,6 @@ import "gorm.io/gorm"
 type CategoryBicycle struct {
 	gorm.Model
 	Name     string    `gorm:"unique;not null"`
-	Bicycles []Bicycle `gorm:"foreignKey:CategoryID"`
 }
 
 type Bicycle struct {

@@ -11,7 +11,7 @@ import (
 
 type WorkingHoursDaily struct {
 	gorm.Model
-	UserID      int    `gorm:"not null"`
+	UserID      uint   `gorm:"not null"`
 	User        User   `gorm:"foreignKey:UserID"`
 	Day         string `gorm:"not null"`
 	WorkedHours string `gorm:"type:varchar(8);not null"`
@@ -20,36 +20,36 @@ type WorkingHoursDaily struct {
 
 type WorkingHoursMonthly struct {
 	gorm.Model
-	UserID           int    `gorm:"not null"`
+	UserID           uint   `gorm:"not null"`
 	User             User   `gorm:"foreignKey:UserID"`
 	Month            string `gorm:"unique;not null"`
 	TotalWorkedHours string `gorm:"type:varchar(8);not null"`
 }
 
-func CreateWorkingHoursDaily(db *gorm.DB, userID int, day, workedHours, breakTime string) (WorkingHoursDaily, error) {
-    workingHours := WorkingHoursDaily{
-        UserID:      userID,
-        Day:         day,
-        WorkedHours: workedHours,
-        BreakTime:   breakTime,
-    }
+func CreateWorkingHoursDaily(db *gorm.DB, userID uint, day, workedHours, breakTime string) (WorkingHoursDaily, error) {
+	workingHours := WorkingHoursDaily{
+		UserID:      userID,
+		Day:         day,
+		WorkedHours: workedHours,
+		BreakTime:   breakTime,
+	}
 
-    result := db.Create(&workingHours)
-    return workingHours, result.Error
+	result := db.Create(&workingHours)
+	return workingHours, result.Error
 }
 
-func CreateWorkingHoursMonthly(db *gorm.DB, userID int, month, totalWorkedHours string) (WorkingHoursMonthly, error) {
-    workingHours := WorkingHoursMonthly{
-        UserID:           userID,
-        Month:            month,
-        TotalWorkedHours: totalWorkedHours,
-    }
+func CreateWorkingHoursMonthly(db *gorm.DB, userID uint, month, totalWorkedHours string) (WorkingHoursMonthly, error) {
+	workingHours := WorkingHoursMonthly{
+		UserID:           userID,
+		Month:            month,
+		TotalWorkedHours: totalWorkedHours,
+	}
 
-    result := db.Create(&workingHours)
-    return workingHours, result.Error
+	result := db.Create(&workingHours)
+	return workingHours, result.Error
 }
 
-func DailyTimekeeping(user_id int, worked_hours time.Duration, break_time time.Duration, db *gorm.DB) error {
+func DailyTimekeeping(user_id uint, worked_hours time.Duration, break_time time.Duration, db *gorm.DB) error {
 	today := time.Now().Format("2006-01-02")
 
 	workedHoursStr := helpers.FormatDurationToHHMMSS(worked_hours)
@@ -72,7 +72,7 @@ func DailyTimekeeping(user_id int, worked_hours time.Duration, break_time time.D
 	return nil
 }
 
-func MonthlyTimekeeping(user_id int, time_duration string, db *gorm.DB) error {
+func MonthlyTimekeeping(user_id uint, time_duration string, db *gorm.DB) error {
 	var monthlyHours WorkingHoursMonthly
 	month := time.Now().Format("2006-01")
 
@@ -93,7 +93,7 @@ func MonthlyTimekeeping(user_id int, time_duration string, db *gorm.DB) error {
 	return result.Error
 }
 
-func GetDailyReportForUser(db *gorm.DB, userID int) ([]WorkingHoursDaily, error) {
+func GetDailyReportForUser(db *gorm.DB, userID uint) ([]WorkingHoursDaily, error) {
 
 	var workingHours []WorkingHoursDaily
 

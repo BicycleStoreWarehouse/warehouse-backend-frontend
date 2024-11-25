@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <header>
-            <h1>Witaj {{.user_name}}</h1> <!-- Zmienna message z kontrolera -->
+            <h1>Witaj {{.user_name}}</h1>
         </header>
 
         <nav>
@@ -22,8 +22,79 @@
         </nav>
 
         <section class="content">
-            <!-- Możesz dodać dodatkowe informacje lub sekcje w tym miejscu -->
+            
+
+            <h2>Lista użytkowników</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Imię</th>
+                        <th>Nazwisko</th>
+                        <th>Email</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .users}}
+                    <tr>
+                        <td>{{.ID}}</td>
+                        <td>{{.Name}}</td>
+                        <td>{{.Surname}}</td>
+                        <td>{{.Email}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+
+            <h2>Oczekujące faktury zakupu</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Dostawca</th>
+                        <th>Kwota netto</th>
+                        <th>Kwota brutto</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .pending_purchase_invoices}}
+                    <tr>
+                        <td>{{.ID}}</td>
+                        <td>{{.SupplierName}}</td>
+                        <td>{{.NetPrice}}</td>
+                        <td>{{.GrossPrice}}</td>
+                        <td>{{.StatusName}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+
+            <h2>Oczekujące faktury sprzedaży</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Klient</th>
+                        <th>Kwota netto</th>
+                        <th>Kwota brutto</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .pending_sales_invoices}}
+                    <tr>
+                        <td>{{.ID}}</td>
+                        <td>{{.SupplierName}}</td>
+                        <td>{{.NetPrice}}</td>
+                        <td>{{.GrossPrice}}</td>
+                        <td>{{.StatusName}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
             <p>Witaj w panelu administracyjnym HR. Jesteś zalogowany jako: <strong>{{.user_name}}</strong></p>
+
         </section>
     </div>
 </body>
