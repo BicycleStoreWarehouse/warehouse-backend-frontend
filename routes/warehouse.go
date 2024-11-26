@@ -16,6 +16,10 @@ func WarehouseRoutes(r *gin.RouterGroup, db *gorm.DB) {
 		controllers.SaveTime(c, db)
 	})
 
+	r.GET("/generate-certificate", func(c *gin.Context) {
+		controllers.GenerateCertificate(c, db)
+	})
+
 	r.GET("/dashboard-worker", func(c *gin.Context) {
 		controllers.DashboardWorker(c, db)
 	})
