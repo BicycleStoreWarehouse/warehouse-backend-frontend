@@ -12,6 +12,39 @@
         .tab-content {
             display: none;
         }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .calendar button {
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            cursor: pointer;
+        }
+        .calendar button.disabled {
+            background-color: #f1f1f1;
+            color: #999;
+            cursor: not-allowed;
+        }
+        .calendar button.highlight-today {
+            background-color: #d1e7fd;
+            font-weight: bold;
+        }
+        .calendar button.vacation-day {
+            background-color: #f4cccc;
+        }
+        .calendar button.weekend {
+            color: #888;
+        }
     </style>
 </head>
 <body>
@@ -29,7 +62,7 @@
             </ul>
         </nav>
         <section class="content">
-            <p>Witaj w panelu administracyjnym magazynu. Jesteś zalogowany jako: <strong>{{.user_name}}</strong></p>
+            <p>Witaj w panelu HR</p>
 
             <nav>
                 <ul>
@@ -50,9 +83,56 @@
                 </nav>
             </div>
 
-            <!-- Submenu for "Wnioski" -->
             <div id="requests-menu" class="submenu">
-                <p>Tutaj będzie sekcja wniosków.</p>
+                <nav>
+                    <ul>
+                        <li><a href="#" onclick="showTab('leave-request')">Urlop</a></li>
+                        <li><a href="#" onclick="showTab('work-status')">Świadczenie pracy</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+            <!-- Submenu for "Wnioski" -->
+            <div id="leave-request" class="tab-content">
+                <h2>Wniosek urlopowy</h2>
+                <div id="calendar-container" class="calendar"></div>
+                <div class="calendar-header">
+                    <button onclick="changeMonth(-1)">&laquo; Poprzedni</button>
+                    <h2 id="calendar-month">Miesiąc</h2>
+                    <button onclick="changeMonth(1)">Następny &raquo;</button>
+                </div>
+
+                <div>
+                    <label for="start-date">Od: </label>
+                    <input type="text" id="start-date" readonly>
+                </div>
+                <div>
+                    <label for="end-date">Do: </label>
+                    <input type="text" id="end-date" readonly>
+                </div>
+                <div>
+                    <label for="total-days">Liczba dni: </label>
+                    <input type="text" id="total-days" readonly>
+                </div>
+                <button onclick="submitRequest()">Wyślij</button>
+                <p id="notification" style="display: none;">Wniosek wysłany do HR</p>
+
+                <table id="requests-table" border="1" style="margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th>Od</th>
+                            <th>Do</th>
+                            <th>Liczba dni</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div id="work-status" class="tab-content">
+                <p>Tutaj będzie zaświadczenie o świadczeniu pracy.</p>
+                <button onclick="window.open('/warehouse/generate-certificate', '_blank')">Generuj zaświadczenie o posiadaniu pracy</button>
+                <!--Przycisk do generowania pdf, ze pracuje. Stanowisko, kiedy zaczął itp-->
             </div>
 
             <!-- Tabs -->
@@ -81,8 +161,8 @@
 
             <div id="work-location" class="tab-content">
                 <h2>Dane pracy</h2>
-                <p>Stanowisko: {{.user_position}}</p>
-                <p>Magazyn: {{.user_location}}</p>
+                <p>Stanowisko: <strong>{{.user_position}}</strong></p>
+                <p>Magazyn: <strong>{{.user_location}}</strong></p>
             </div>
         </section>
     </div>
@@ -110,6 +190,138 @@
                 selectedTab.style.display = 'block';
             }
         }
+            const today = new Date();
+            const calendar = document.querySelector('.calendar');
+            const monthLabel = document.getElementById('calendar-month');
+            let currentDate = new Date();
+
+            const vacationDays = {
+                '2024-01-07': 'vacation-day',
+                '2024-01-21': 'vacation-day',
+                '2024-02-12': 'vacation-day',
+                '2024-03-13': 'vacation-day',
+            };
+
+        function generateCalendar(date) {
+            calendar.innerHTML = '';
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            monthLabel.textContent = date.toLocaleString('default', { month: 'long', year: 'numeric' });
+
+            const firstDayOfMonth = new Date(year, month, 1);
+            const lastDayOfMonth = new Date(year, month + 1, 0);
+
+            const daysInMonth = lastDayOfMonth.getDate();
+            const startDay = firstDayOfMonth.getDay() === 0 ? 7 : firstDayOfMonth.getDay();
+
+            // Add blank days for the first week
+            for (let i = 1; i < startDay; i++) {
+                const blank = document.createElement('div');
+                calendar.appendChild(blank);
+            }
+
+            // Generate days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const button = document.createElement('button');
+                const dayDate = new Date(year, month, day);
+                const isoDate = dayDate.toISOString().split('T')[0];
+
+                button.textContent = day;
+                button.onclick = () => selectDate(dayDate);
+
+                // Highlight today
+                if (dayDate.toDateString() === today.toDateString()) {
+                    button.classList.add('highlight-today');
+                }
+
+                // Highlight vacation days
+                if (vacationDays[isoDate]) {
+                    button.classList.add(vacationDays[isoDate]);
+                }
+
+                // Style weekends
+                if (dayDate.getDay() === 0 || dayDate.getDay() === 6) {
+                    button.classList.add('weekend');
+                }
+
+                calendar.appendChild(button);
+            }
+        }
+
+        let startDate = null;
+        let endDate = null;
+
+        function changeMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            generateCalendar(currentDate);
+        }
+
+        function selectDate(date) {
+            if (!startDate || (startDate && endDate)) {
+                startDate = date;
+                endDate = null;
+                document.getElementById('start-date').value = formatDate(date);
+                document.getElementById('end-date').value = '';
+                document.getElementById('total-days').value = '';
+            } else if (date > startDate) {
+                endDate = date;
+                document.getElementById('end-date').value = formatDate(date);
+                const diff = calculateWorkdays(startDate, endDate);
+                document.getElementById('total-days').value = diff;
+            }
+        }
+
+        function calculateWorkdays(start, end) {
+            let count = 0;
+            let date = new Date(start);
+            while (date <= end) {
+                const day = date.getDay();
+                if (day !== 0 && day !== 6 && !vacationDays[date.toISOString().split('T')[0]]) {
+                    count++;
+                }
+                date.setDate(date.getDate() + 1);
+            }
+            return count;
+        }
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        function submitRequest() {
+            const start = document.getElementById('start-date').value;
+            const end = document.getElementById('end-date').value;
+            const days = document.getElementById('total-days').value;
+
+            if (start && end && days) {
+                const tbody = document.getElementById('requests-table').querySelector('tbody');
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = start;
+                row.insertCell(1).textContent = end;
+                row.insertCell(2).textContent = days;
+
+                // Clear the form
+                document.getElementById('start-date').value = '';
+                document.getElementById('end-date').value = '';
+                document.getElementById('total-days').value = '';
+
+                // Show notification
+            const notification = document.getElementById('notification');
+            notification.style.display = 'block';
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                }, 3000);
+                } else {
+                alert('Proszę wybrać prawidłowe daty.');
+                }
+        }
+
+        // Initialize calendar
+        generateCalendar(currentDate);
+
+    function generateCertificate() {
+        window.open('/warehouse/generate-certificate', '_blank');
+    }
     </script>
     
 </body>
