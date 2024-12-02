@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista pracowników</title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+    <div class="container">
+        {{if .message}}
+            <p style="color:red;">{{.message}} -- {{.user}}</p>
+        {{end}}
+
+        <header>
+            <h1>Lista Pracowników</h1>
+        </header>
+
+        <!-- Tabela z pracownikami -->
+        <table>
+            <thead>
+                <tr>
+                    <th>Imię</th>
+                    <th>Nazwisko</th>
+                    <th>Email</th>
+                    <th>Telefon</th>
+                    <th>Data zatrudnienia</th>
+                    <th>Detal</th> <!-- New column for details link -->
+                </tr>
+            </thead>
+            <tbody>
+                {{range .users}}
+                    <tr>
+                        <td>{{.Name}}</td>
+                        <td>{{.Surname}}</td>
+                        <td>{{.Email}}</td>
+                        <td>{{.Phone}}</td>
+                        <td>{{.DateOfEmployment}}</td>
+                        <td>
+                            <a href="/hr/workers/{{.ID}}">Szczegóły</a> <!-- Link to user details page -->
+                        </td>
+                    </tr>
+                {{else}}
+                    <tr>
+                        <td colspan="6">Brak pracowników w systemie.</td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+
+        <br>
+
+        <!-- Formularz dodawania użytkownika -->
+        <form method="POST">
+            <label for="name">Imię</label>
+            <input type="text" id="name" name="name" required>
+            <br><br>
+
+            <label for="surname">Nazwisko</label>
+            <input type="text" id="surname" name="surname" required>
+            <br><br>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+            <br><br>
+
+            <label for="position">Stanowisko</label>
+            <input type="text" id="position" name="position" required>
+            <br><br>
+
+            <label for="date_of_employment">Data zatrudnienia</label>
+            <input type="date" id="date_of_employment" name="date_of_employment" required>
+            <br><br>
+
+            <label for="phone">Telefon</label>
+            <input type="text" id="phone" name="phone" required>
+            <br><br>
+
+            <label for="password">Hasło</label>
+            <input type="password" id="password" name="password" required>
+            <br><br>
+
+            <label for="street">Ulica</label>
+            <input type="text" id="street" name="street" required>
+            <br><br>
+
+            <label for="city">Miasto</label>
+            <input type="text" id="city" name="city" required>
+            <br><br>
+
+            <label for="state">Województwo</label>
+            <input type="text" id="state" name="state" required>
+            <br><br>
+
+            <label for="zip">Kod pocztowy</label>
+            <input type="text" id="zip" name="zip" required>
+            <br><br>
+
+            <label for="country">Kraj</label>
+            <input type="text" id="country" name="country" required>
+            <br><br>
+
+            <label for="bank_account">Numer konta bankowego</label>
+            <input type="text" id="bank_account" name="bank_account" required>
+            <br><br>
+
+            <label for="name_bank">Nazwa banku</label>
+            <input type="text" id="name_bank" name="name_bank" required>
+            <br><br>
+
+            <button type="submit">Dodaj użytkownika</button>
+        </form>
+    </div>
+</body>
+</html>

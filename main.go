@@ -52,13 +52,13 @@ func main() {
 	routes.UnauthorizedRoutes(r, db)
 
 	warehouse := r.Group("/warehouse")
-	warehouse.Use(middleware.LoginRequiredMiddleware(), middleware.PositionMiddleware(db))
+	warehouse.Use(middleware.LoginRequiredMiddleware(), middleware.WarehouseMiddleware(db))
 	{
 		routes.WarehouseRoutes(warehouse, db)
 	}
 
 	hr := r.Group("/hr")
-	hr.Use(middleware.LoginRequiredMiddleware(), middleware.PositionMiddleware(db))
+	hr.Use(middleware.LoginRequiredMiddleware(), middleware.HrMiddleware(db))
 	{
 		routes.HumanResourcesRoutes(hr, db)
 	}
