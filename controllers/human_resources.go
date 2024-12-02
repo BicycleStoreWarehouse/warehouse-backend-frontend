@@ -1,7 +1,10 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
+	"strconv"
+	"time"
 	"warehouse/models"
 
 	"github.com/gin-gonic/gin"
@@ -62,15 +65,82 @@ func HrDashboard(c *gin.Context, db *gorm.DB) {
 }
 
 func ListWorkers(c *gin.Context, db *gorm.DB) {
-	c.HTML(http.StatusOK, "list_workers.html", gin.H{"message": "List Workers"})
+	users, _ := models.GetAllWorkers(db)
+
+	c.HTML(http.StatusOK, "list_workers.html", gin.H{"users": users})
 }
 
 func CreateWorker(c *gin.Context, db *gorm.DB) {
-	c.HTML(http.StatusOK, "create_worker.html", gin.H{"message": "Create Worker"})
+	name := c.DefaultPostForm("name", "")
+	surname := c.DefaultPostForm("surname", "")
+	email := c.DefaultPostForm("email", "")
+	dateOfEmploymentStr := c.DefaultPostForm("date_of_employment", "")
+	phone := c.DefaultPostForm("phone", "")
+	password := c.DefaultPostForm("password", "")
+	street := c.DefaultPostForm("street", "")
+	city := c.DefaultPostForm("city", "")
+	state := c.DefaultPostForm("state", "")
+	zip := c.DefaultPostForm("zip", "")
+	country := c.DefaultPostForm("country", "")
+	bankAccount := c.DefaultPostForm("bank_account", "")
+	nameBank := c.DefaultPostForm("name_bank", "")
+
+	dateOfEmployment, err := time.Parse("2006-01-02", dateOfEmploymentStr)
+	if err != nil {
+		c.Redirect(http.StatusFound, "/hr/dashboard")
+		c.Abort()
+		return
+	}
+
+	position, _ := models.GetPositionByName(db, "Magazynowy")
+	user, err := models.CreateUser(db, name, surname, email, position, dateOfEmployment, phone, password, street, city, state, zip, country, bankAccount, nameBank)
+
+	if err != nil {
+		log.Printf("Err %s", err)
+		log.Printf("User %s", user.Name)
+	}
+
+	ListWorkers(c, db)
 }
 
 func DetailWorker(c *gin.Context, db *gorm.DB) {
-	c.HTML(http.StatusOK, "detail_worker.html", gin.H{"message": "Detail Worker"})
+	userIDParam := c.Param("id")
+
+	userID, _ := strconv.ParseUint(userIDParam, 10, 64)
+	userIDUint := uint(userID)
+
+	user, _ := models.GetUserByID(db, userIDUint)
+
+	c.HTML(http.StatusOK, "detail_worker.html", gin.H{"user": user})
+}
+
+func UpdateWorkerForm(c *gin.Context, db *gorm.DB) {
+	userIDParam := c.Param("id")
+
+	userID, _ := strconv.ParseUint(userIDParam, 10, 64)
+	userIDUint := uint(userID)
+
+	user, _ := models.GetUserByID(db, userIDUint)
+
+	c.HTML(http.StatusOK, "edit_user.html", gin.H{
+		"User": user,
+	})
+}
+
+func UpdateWorker(c *gin.Context, db *gorm.DB) {
+	userIDParam := c.Param("id")
+
+	userID, _ := strconv.ParseUint(userIDParam, 10, 64)
+	userIDUint := uint(userID)
+
+	user, _ := models.GetUserByID(db, userIDUint)
+
+	if err := db.Save(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Błąd przy zapisywaniu zmian"})
+		return
+	}
+
+	ListWorkers(c, db)
 }
 
 func ListOrdersHR(c *gin.Context, db *gorm.DB) {

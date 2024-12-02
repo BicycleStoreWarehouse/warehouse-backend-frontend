@@ -75,7 +75,7 @@ func GetUserByEmail(db *gorm.DB, email string) (User, error) {
 
 func GetUserByID(db *gorm.DB, id uint) (User, error) {
 	var user User
-	err := db.Where("id = ?", id).First(&user).Error
+	err := db.Preload("Position").Where("id = ?", id).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return User{}, gorm.ErrRecordNotFound
@@ -89,6 +89,23 @@ func GetAllUsers(db *gorm.DB) ([]User, error) {
 	var users []User
 
 	err := db.Find(&users).Error
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, gorm.ErrRecordNotFound
+		}
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func GetAllWorkers(db *gorm.DB) ([]User, error) {
+	var users []User
+
+	err := db.Joins("JOIN positions ON users.position_id = positions.id").
+			Where("positions.name = ?", "Magazynowy").
+			Find(&users).Error
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -131,4 +148,19 @@ func GetUsersPassword(db *gorm.DB, email string) (password string, error error) 
 	}
 
 	return user.Password, nil
+}
+
+func GetPositionByName(db * gorm.DB, name string) (Position, error) {
+	var position Position
+
+	err := db.Where("name = ?", name).First(&position).Error
+
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return Position{}, gorm.ErrRecordNotFound
+		}
+		return Position{}, err
+	}
+
+	return position, err
 }

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edytuj Pracownika</title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Edytuj Pracownika</h1>
+        </header>
+
+        <form method="POST" action="/workers/{{.User.ID}}/edit">
+            <input type="hidden" name="id" value="{{.User.ID}}">
+
+            <label for="name">Imię</label>
+            <input type="text" id="name" name="name" value="{{.User.Name}}" required>
+
+            <label for="surname">Nazwisko</label>
+            <input type="text" id="surname" name="surname" value="{{.User.Surname}}" required>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="{{.User.Email}}" required>
+
+            <label for="phone">Telefon</label>
+            <input type="text" id="phone" name="phone" value="{{.User.Phone}}" required>
+
+            <label for="date_of_employment">Data zatrudnienia</label>
+            <input type="date" id="date_of_employment" name="date_of_employment" value="{{.User.DateOfEmployment}}" required>
+
+            <label for="position">Stanowisko</label>
+            <input type="text" id="position" name="position" value="{{.User.Position}}" required>
+
+            <label for="street">Ulica</label>
+            <input type="text" id="street" name="street" value="{{.User.Street}}" required>
+
+            <label for="city">Miasto</label>
+            <input type="text" id="city" name="city" value="{{.User.City}}" required>
+
+            <label for="state">Województwo</label>
+            <input type="text" id="state" name="state" value="{{.User.State}}" required>
+
+            <label for="zip">Kod pocztowy</label>
+            <input type="text" id="zip" name="zip" value="{{.User.Zip}}" required>
+
+            <label for="country">Kraj</label>
+            <input type="text" id="country" name="country" value="{{.User.Country}}" required>
+
+            <label for="bank_account">Numer konta bankowego</label>
+            <input type="text" id="bank_account" name="bank_account" value="{{.User.BankAccount}}" required>
+
+            <label for="name_bank">Nazwa banku</label>
+            <input type="text" id="name_bank" name="name_bank" value="{{.User.NameBank}}" required>
+
+            <button type="submit">Zapisz zmiany</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -24,6 +24,14 @@ func HumanResourcesRoutes(r *gin.RouterGroup, db *gorm.DB) {
 		controllers.DetailWorker(c, db)
 	})
 
+	r.GET("/workers/:id/update", func(c *gin.Context) {
+		controllers.UpdateWorkerForm(c, db)
+	})
+
+	r.POST("/workers/:id/update", func(c *gin.Context) {
+		controllers.UpdateWorker(c, db)
+	})
+
 	r.GET("/orders", func(c *gin.Context) {
 		controllers.ListOrdersHR(c, db)
 	})

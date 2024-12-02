@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Szczegóły pracownika</title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+    <h1>Szczegóły pracownika</h1>
+
+    <p><strong>Imię:</strong> {{ .user.Name }}</p>
+    <p><strong>Nazwisko:</strong> {{ .user.Surname }}</p>
+    <p><strong>Email:</strong> {{ .user.Email }}</p>
+    <p><strong>Stanowisko:</strong> {{ .user.Position.Name }}</p>
+    <p><strong>Data zatrudnienia:</strong> {{ .user.DateOfEmployment.Format "02-01-2006" }}</p>
+    <p><strong>Telefon:</strong> {{ .user.Phone }}</p>
+    <p><strong>Adres:</strong> {{ .user.Street }}, {{ .user.City }}, {{ .user.State }}, {{ .user.Zip }}, {{ .user.Country }}</p>
+    <p><strong>Konto bankowe:</strong> {{ .user.BankAccount }}</p>
+    <p><strong>Nazwa banku:</strong> {{ .user.NameBank }}</p>
+
+    <a href="/hr/workers">Powrót do listy pracowników</a>
+</body>
+</html>
