@@ -45,6 +45,7 @@ func main() {
 		&models.WorkingHoursMonthly{},
 		&models.PurchaseInvoice{},
 		&models.SalesInvoice{},
+		&models.Vacation{},
 	)
 
 	database.LoadExampleData(db)
