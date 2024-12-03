@@ -103,16 +103,16 @@
                 </div>
 
                 <div>
-                    <label for="start-date">Od: </label>
-                    <input type="text" id="start-date" readonly>
+                    <label for="date_from">Od: </label>
+                    <input type="text" id="date_from" readonly>
                 </div>
                 <div>
-                    <label for="end-date">Do: </label>
-                    <input type="text" id="end-date" readonly>
+                    <label for="date_to">Do: </label>
+                    <input type="text" id="date_to" readonly>
                 </div>
                 <div>
-                    <label for="total-days">Liczba dni: </label>
-                    <input type="text" id="total-days" readonly>
+                    <label for="date_count">Liczba dni: </label>
+                    <input type="text" id="date_count" readonly>
                 </div>
                 <button onclick="submitRequest()">Wyślij</button>
                 <p id="notification" style="display: none;">Wniosek wysłany do HR</p>
@@ -125,7 +125,15 @@
                             <th>Liczba dni</th>
                         </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody>
+                        {{range .vacations}}
+                        <tr>
+                            <td>{{.date_from}}</td>
+                            <td>{{.date_to}}</td>
+                            <td>{{.date_count}}</td>
+                        </tr>
+                        {{end}}
+                    </tbody>
                 </table>
             </div>
 
@@ -227,7 +235,14 @@
                 const isoDate = dayDate.toISOString().split('T')[0];
 
                 button.textContent = day;
-                button.onclick = () => selectDate(dayDate);
+
+                // Disable days before today
+                if (dayDate < today || dayDate.getDay() === 0 || dayDate.getDay() === 6) {
+                    button.classList.add('disabled');
+                    button.disabled = true;
+                } else {
+                    button.onclick = () => selectDate(dayDate);
+                }
 
                 // Highlight today
                 if (dayDate.toDateString() === today.toDateString()) {
@@ -237,11 +252,6 @@
                 // Highlight vacation days
                 if (vacationDays[isoDate]) {
                     button.classList.add(vacationDays[isoDate]);
-                }
-
-                // Style weekends
-                if (dayDate.getDay() === 0 || dayDate.getDay() === 6) {
-                    button.classList.add('weekend');
                 }
 
                 calendar.appendChild(button);
@@ -257,17 +267,25 @@
         }
 
         function selectDate(date) {
+            const selectedButton = [...calendar.querySelectorAll('button')].find(
+                btn => btn.textContent === String(date.getDate()) && !btn.classList.contains('disabled')
+            );
+
+            if (!selectedButton) {
+                return; // Jeśli kliknięto dzień nieaktywny, nic się nie dzieje
+            }
+
             if (!startDate || (startDate && endDate)) {
                 startDate = date;
                 endDate = null;
-                document.getElementById('start-date').value = formatDate(date);
-                document.getElementById('end-date').value = '';
-                document.getElementById('total-days').value = '';
+                document.getElementById('date_from').value = formatDate(date);
+                document.getElementById('date_to').value = '';
+                document.getElementById('date_count').value = '';
             } else if (date > startDate) {
                 endDate = date;
-                document.getElementById('end-date').value = formatDate(date);
+                document.getElementById('date_to').value = formatDate(date);
                 const diff = calculateWorkdays(startDate, endDate);
-                document.getElementById('total-days').value = diff;
+                document.getElementById('date_count').value = diff;
             }
         }
 
@@ -285,35 +303,61 @@
         }
 
         function formatDate(date) {
-            return date.toISOString().split('T')[0];
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0'); // Dodaj +1, ponieważ miesiące są indeksowane od 0
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         function submitRequest() {
-            const start = document.getElementById('start-date').value;
-            const end = document.getElementById('end-date').value;
-            const days = document.getElementById('total-days').value;
+            const dateFrom = document.getElementById('date_from').value;
+            const dateTo = document.getElementById('date_to').value;
+            const dateCount = document.getElementById('date_count').value;
 
-            if (start && end && days) {
-                const tbody = document.getElementById('requests-table').querySelector('tbody');
-                const row = tbody.insertRow();
-                row.insertCell(0).textContent = start;
-                row.insertCell(1).textContent = end;
-                row.insertCell(2).textContent = days;
+            if (!dateFrom || !dateTo || !dateCount) {
+                alert('Proszę wybrać zakres dat.');
+                return;
+            }
 
-                // Clear the form
-                document.getElementById('start-date').value = '';
-                document.getElementById('end-date').value = '';
-                document.getElementById('total-days').value = '';
+            const vacationData = {
+                date_from: dateFrom,
+                date_to: dateTo,
+                date_count: parseInt(dateCount, 10),
+            };
 
-                // Show notification
-            const notification = document.getElementById('notification');
-            notification.style.display = 'block';
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 3000);
-                } else {
-                alert('Proszę wybrać prawidłowe daty.');
-                }
+            fetch('/warehouse/save-vacation', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(vacationData),
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Nie udało się zapisać urlopu');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    alert(data.status || 'Urlop zapisany pomyślnie!');
+                    document.getElementById('notification').style.display = 'block';
+
+                    // Dodanie nowego wiersza do tabeli
+                    const tableBody = document.getElementById('requests-table').querySelector('tbody');
+                    const newRow = tableBody.insertRow();
+                    
+                    const cellFrom = newRow.insertCell(0);
+                    const cellTo = newRow.insertCell(1);
+                    const cellCount = newRow.insertCell(2);
+
+                    cellFrom.textContent = vacationData.date_from;
+                    cellTo.textContent = vacationData.date_to;
+                    cellCount.textContent = vacationData.date_count;
+                })
+                .catch(error => {
+                    console.error('Błąd:', error);
+                    alert('Wystąpił problem podczas zapisywania urlopu.');
+                });
         }
 
         // Initialize calendar

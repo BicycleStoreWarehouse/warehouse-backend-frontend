@@ -51,6 +51,23 @@ func DashboardWorker(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	vacations, err := models.GetVacationsByUserID(db, userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "dashboard_worker.html", gin.H{
+			"message": "Nie udało się pobrać danych o wakacjach",
+		})
+		return
+	}
+
+	vacationData := []gin.H{}
+	for _, vacation := range vacations {
+		vacationData = append(vacationData, gin.H{
+			"date_from":  vacation.DateFrom,
+			"date_to":    vacation.DateTo,
+			"date_count": vacation.DateCount,
+		})
+	}
+
 	c.HTML(http.StatusOK, "dashboard_worker.html", gin.H{
 		"user_name":        user.Name,
 		"user_surname":     user.Surname,
@@ -65,7 +82,40 @@ func DashboardWorker(c *gin.Context, db *gorm.DB) {
 		"user_nameBank":    user.NameBank,
 		"user_position":    user.PositionID,
 		"user_location":    user.City,
+		"vacations":        vacationData,
 	})
+}
+
+func SaveVacation(c *gin.Context, db *gorm.DB) {
+	userID, exists := c.Get("user_id")
+
+	if !exists {
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"message": "Musisz być zalogowany",
+		})
+		return
+	}
+
+	var vacationData struct {
+		DateFrom  string `json:"date_from"`
+		DateTo    string `json:"date_to"`
+		DateCount int    `json:"date_count"`
+	}
+
+	if err := c.ShouldBindJSON(&vacationData); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Nieprawidłowe dane wejściowe"})
+		return
+	}
+
+	// Zapisz nowy urlop do bazy danych
+	vacation, err := models.CreateVacation(db, userID.(uint), vacationData.DateFrom, vacationData.DateTo, vacationData.DateCount)
+	if err != nil {
+		log.Printf("Błąd zapisywania urlopu: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Błąd podczas zapisywania urlopu"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "Urlop zapisany pomyślnie", "vacation": vacation})
 }
 
 func SaveTime(c *gin.Context, db *gorm.DB) {
