@@ -75,7 +75,7 @@ func GetUserByEmail(db *gorm.DB, email string) (User, error) {
 
 func GetUserByID(db *gorm.DB, id uint) (User, error) {
 	var user User
-	err := db.Preload("Position").Where("id = ?", id).First(&user).Error
+	err := db.Preload("Position").Where("id = ?", id).First(&user).Order("id DESC").Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return User{}, gorm.ErrRecordNotFound
