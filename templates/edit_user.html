@@ -12,7 +12,7 @@
             <h1>Edytuj Pracownika</h1>
         </header>
 
-        <form method="POST" action="/workers/{{.User.ID}}/edit">
+        <form method="POST">
             <input type="hidden" name="id" value="{{.User.ID}}">
 
             <label for="name">Imię</label>
@@ -26,12 +26,6 @@
 
             <label for="phone">Telefon</label>
             <input type="text" id="phone" name="phone" value="{{.User.Phone}}" required>
-
-            <label for="date_of_employment">Data zatrudnienia</label>
-            <input type="date" id="date_of_employment" name="date_of_employment" value="{{.User.DateOfEmployment}}" required>
-
-            <label for="position">Stanowisko</label>
-            <input type="text" id="position" name="position" value="{{.User.Position}}" required>
 
             <label for="street">Ulica</label>
             <input type="text" id="street" name="street" value="{{.User.Street}}" required>

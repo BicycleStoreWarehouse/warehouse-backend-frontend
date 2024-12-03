@@ -44,3 +44,13 @@ func CreateBicyclePart(db *gorm.DB, name string, categoryID uint, producerID uin
     result := db.Create(&bicyclePart)
     return bicyclePart, result.Error
 }
+
+func GetBicyclePartsNames(db *gorm.DB) ([]BicyclePart, error) {
+	var bicyclePartNames []BicyclePart	
+	
+	if err := db.Find(&bicyclePartNames).Error; err != nil {
+		return nil, err
+	}
+
+	return bicyclePartNames, nil
+}

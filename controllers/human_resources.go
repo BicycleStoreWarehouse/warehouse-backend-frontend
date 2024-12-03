@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -110,8 +111,11 @@ func DetailWorker(c *gin.Context, db *gorm.DB) {
 	userIDUint := uint(userID)
 
 	user, _ := models.GetUserByID(db, userIDUint)
+	usersOrders, _ := models.GetUsersOrders(db, userIDUint)
 
-	c.HTML(http.StatusOK, "detail_worker.html", gin.H{"user": user})
+	fmt.Printf("Users orders: %s", usersOrders)
+
+	c.HTML(http.StatusOK, "detail_worker.html", gin.H{"user": user, "usersOrders": usersOrders})
 }
 
 func UpdateWorkerForm(c *gin.Context, db *gorm.DB) {
@@ -135,6 +139,30 @@ func UpdateWorker(c *gin.Context, db *gorm.DB) {
 
 	user, _ := models.GetUserByID(db, userIDUint)
 
+	name := c.DefaultPostForm("name", user.Name)
+	surname := c.DefaultPostForm("surname", user.Surname)
+	email := c.DefaultPostForm("email", user.Email)
+	phone := c.DefaultPostForm("phone", user.Phone)
+	street := c.DefaultPostForm("street", user.Street)
+	city := c.DefaultPostForm("city", user.City)
+	state := c.DefaultPostForm("state", user.State)
+	zip := c.DefaultPostForm("zip", user.Zip)
+	country := c.DefaultPostForm("country", user.Country)
+	bankAccount := c.DefaultPostForm("bank_account", user.BankAccount)
+	nameBank := c.DefaultPostForm("name_bank", user.NameBank)
+
+	user.Name = name
+	user.Surname = surname
+	user.Email = email
+	user.Phone = phone
+	user.Street = street
+	user.City = city
+	user.State = state
+	user.Zip = zip
+	user.Country = country
+	user.BankAccount = bankAccount
+	user.NameBank = nameBank
+
 	if err := db.Save(&user).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Błąd przy zapisywaniu zmian"})
 		return
@@ -144,11 +172,83 @@ func UpdateWorker(c *gin.Context, db *gorm.DB) {
 }
 
 func ListOrdersHR(c *gin.Context, db *gorm.DB) {
-	c.HTML(http.StatusOK, "list_orders_hr.html", gin.H{"message": "List Orders"})
+	orders, _ := models.GetAllOrders(db)
+	bicycles, _ := models.GetBicyclesNames(db)
+	bicycleParts, _ := models.GetBicyclePartsNames(db)
+	users, _ := models.GetAllWorkers(db)
+
+	c.HTML(http.StatusOK, "list_orders_hr.html", gin.H{"orders": orders,
+		"Bicycles":     bicycles,
+		"BicycleParts": bicycleParts,
+		"Users":        users})
 }
 
 func CreateOrder(c *gin.Context, db *gorm.DB) {
-	c.HTML(http.StatusOK, "create_order.html", gin.H{"message": "Create Order"})
+	userIDStr := c.PostForm("user_id")
+	bicycleIDStr := c.PostForm("bicycle_id")
+	bicyclePartIDStr := c.PostForm("bicycle_part_id")
+	quantityStr := c.PostForm("quantity")
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "Invalid user ID"})
+		return
+	}
+	userIDUint := uint(userID)
+
+	quantity, err := strconv.Atoi(quantityStr)
+	if err != nil || quantity < 1 {
+		c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "Invalid quantity"})
+		return
+	}
+
+	var bicycleIDUint, bicyclePartIDUint *uint
+
+	if bicycleIDStr != "" {
+		bicycleID, err := strconv.ParseUint(bicycleIDStr, 10, 64)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "Invalid bicycle ID"})
+			return
+		}
+		bicycleIDValue := uint(bicycleID)
+		bicycleIDUint = &bicycleIDValue
+	}
+
+	// Parse bicycle part ID if selected
+	if bicyclePartIDStr != "" {
+		bicyclePartID, err := strconv.ParseUint(bicyclePartIDStr, 10, 64)
+		if err != nil {
+			c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "Invalid bicycle part ID"})
+			return
+		}
+		bicyclePartIDValue := uint(bicyclePartID)
+		bicyclePartIDUint = &bicyclePartIDValue
+	}
+
+	// Ensure at least one product is selected
+	if bicycleIDUint == nil && bicyclePartIDUint == nil {
+		c.HTML(http.StatusBadRequest, "error.html", gin.H{"error": "Must select either a bicycle or a bicycle part"})
+		return
+	}
+
+	// Create order
+	order, err := models.CreateOrder(db, userIDUint)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{"error": "Failed to create order"})
+		return
+	}
+
+	// Create order product
+	orderProducts, err := models.CreateOrderProduct(db, order.ID, bicycleIDUint, bicyclePartIDUint, quantity)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{"error": "Failed to create order product"})
+		return
+	}
+
+	fmt.Printf("Order Product: %s", orderProducts.CreatedAt)
+
+	// List orders
+	ListOrdersHR(c, db)
 }
 
 func ListAplicationsHR(c *gin.Context, db *gorm.DB) {
