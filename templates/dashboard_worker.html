@@ -123,6 +123,7 @@
                             <th>Od</th>
                             <th>Do</th>
                             <th>Liczba dni</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -131,6 +132,7 @@
                             <td>{{.date_from}}</td>
                             <td>{{.date_to}}</td>
                             <td>{{.date_count}}</td>
+                            <td>{{.status}}</td>
                         </tr>
                         {{end}}
                     </tbody>
@@ -349,10 +351,12 @@
                     const cellFrom = newRow.insertCell(0);
                     const cellTo = newRow.insertCell(1);
                     const cellCount = newRow.insertCell(2);
+                    const cellStatus = newRow.insertCell(3);
 
                     cellFrom.textContent = vacationData.date_from;
                     cellTo.textContent = vacationData.date_to;
                     cellCount.textContent = vacationData.date_count;
+                    cellStatus.textContent = vacationData.status || 'Wysłany';
                 })
                 .catch(error => {
                     console.error('Błąd:', error);

@@ -31,3 +31,7 @@ Po uruchomieniu projektu mamy możliwość dostępu do bazy danych w taki sposó
 ### Metody do modeli
 
 Jeśli jest metoda, która nawiązuje do modelu np. `CreateUser` lub `GetUserPassword` dajemy ją w pliku tego modelu
+
+### Zresetowanie bazy danych aby odtworzyć ją od nowa
+
+Jeśli zmieniłeś coś w bazie danych (migrations.go) to musisz wykonać tą komendę: docker_utils/clear.sh

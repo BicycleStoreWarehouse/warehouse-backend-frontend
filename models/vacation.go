@@ -11,14 +11,16 @@ type Vacation struct {
 	DateFrom  string `gorm:"not null"`
 	DateTo    string `gorm:"not null"`
 	DateCount int    `gorm:"not null"`
+	Status    string `gorm:"default:'Wysłany'"`
 }
 
-func CreateVacation(db *gorm.DB, userID uint, dateFrom, dateTo string, dateCount int) (Vacation, error) {
+func CreateVacation(db *gorm.DB, userID uint, dateFrom, dateTo string, dateCount int, status string) (Vacation, error) {
 	vacation := Vacation{
 		UserID:    userID,
 		DateFrom:  dateFrom,
 		DateTo:    dateTo,
 		DateCount: dateCount,
+		Status:    status,
 	}
 
 	result := db.Create(&vacation)

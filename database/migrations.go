@@ -121,6 +121,6 @@ func LoadExampleData(db *gorm.DB) {
 	models.CreateWorkingHoursDaily(db, worker_1.ID, "2024-11-19", "8", "1")
 	models.CreateWorkingHoursMonthly(db, worker_1.ID, "2024-11", "160")
 
-	models.CreateVacation(db, worker_1.ID, "2024-11-19", "2024-11-26", 7)
-	models.CreateVacation(db, worker_2.ID, "2024-11-19", "2024-11-26", 7)
+	models.CreateVacation(db, worker_1.ID, "2024-11-19", "2024-11-26", 7, "Wysłany")
+	models.CreateVacation(db, worker_2.ID, "2024-11-19", "2024-11-26", 7, "Zatwierdzony")
 }

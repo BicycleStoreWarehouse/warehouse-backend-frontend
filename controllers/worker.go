@@ -65,6 +65,7 @@ func DashboardWorker(c *gin.Context, db *gorm.DB) {
 			"date_from":  vacation.DateFrom,
 			"date_to":    vacation.DateTo,
 			"date_count": vacation.DateCount,
+			"status":     vacation.Status,
 		})
 	}
 
@@ -108,7 +109,7 @@ func SaveVacation(c *gin.Context, db *gorm.DB) {
 	}
 
 	// Zapisz nowy urlop do bazy danych
-	vacation, err := models.CreateVacation(db, userID.(uint), vacationData.DateFrom, vacationData.DateTo, vacationData.DateCount)
+	vacation, err := models.CreateVacation(db, userID.(uint), vacationData.DateFrom, vacationData.DateTo, vacationData.DateCount, "Wysłany")
 	if err != nil {
 		log.Printf("Błąd zapisywania urlopu: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Błąd podczas zapisywania urlopu"})
