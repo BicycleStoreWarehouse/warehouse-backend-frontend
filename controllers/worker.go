@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 	"warehouse/models"
 
@@ -81,7 +82,7 @@ func DashboardWorker(c *gin.Context, db *gorm.DB) {
 		"user_country":     user.Country,
 		"user_bankAccount": user.BankAccount,
 		"user_nameBank":    user.NameBank,
-		"user_position":    user.PositionID,
+		"user_position":    user.Position.Name,
 		"user_location":    user.City,
 		"vacations":        vacationData,
 	})
@@ -254,7 +255,7 @@ func GenerateCertificate(c *gin.Context, db *gorm.DB) {
 	pdf.Ln(8)
 	pdf.Cell(100, 10, fmt.Sprintf("Telefon: %s", user.Phone))
 	pdf.Ln(8)
-	pdf.Cell(100, 10, fmt.Sprintf("Stanowisko: %s", user.PositionID))
+	pdf.Cell(100, 10, fmt.Sprintf("Stanowisko: %s", user.Position.Name))
 	pdf.Ln(8)
 	pdf.Cell(100, 10, fmt.Sprintf("Lokalizacja pracy: %s", user.City))
 	pdf.Ln(8)
@@ -272,4 +273,72 @@ func GenerateCertificate(c *gin.Context, db *gorm.DB) {
 			"error": "Błąd podczas generowania PDF",
 		})
 	}
+}
+
+func GetTasks(c *gin.Context, db *gorm.DB) {
+	// Sprawdzenie czy użytkownik jest zalogowany
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"message": "Musisz być zalogowany",
+		})
+		return
+	}
+
+	// Pobranie zadań dla użytkownika z bazy danych
+	tasks, err := models.GetTasksByUserID(db, userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "worker_task.html", gin.H{
+			"error": "Nie udało się pobrać zadań",
+		})
+		return
+	}
+
+	// Renderowanie szablonu HTML z zadaniami
+	c.HTML(http.StatusOK, "worker_task.html", gin.H{
+		"Tasks":   tasks,
+		"Message": "Witaj, oto Twoje zadania.",
+	})
+}
+
+func CompleteTask(c *gin.Context, db *gorm.DB) {
+	// Pobierz taskID z formularza
+	taskIDStr := c.PostForm("task_id")
+	taskID, err := strconv.Atoi(taskIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Niepoprawny identyfikator zadania"})
+		return
+	}
+
+	// Sprawdzenie czy użytkownik jest zalogowany
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"message": "Musisz być zalogowany",
+		})
+		return
+	}
+
+	// Oznaczenie zadania jako wykonanego
+	err = models.MarkTaskAsCompleted(db, uint(taskID), userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "worker_task.html", gin.H{
+			"error": "Nie udało się oznaczyć zadania",
+		})
+		return
+	}
+
+	// Pobierz zaktualizowaną listę zadań użytkownika
+	tasks, err := models.GetTasksByUserID(db, userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "worker_task.html", gin.H{
+			"error": "Nie udało się pobrać zadań",
+		})
+		return
+	}
+
+	// Przekazanie zadań do widoku
+	c.HTML(http.StatusOK, "worker_task.html", gin.H{
+		"Tasks": tasks,
+	})
 }

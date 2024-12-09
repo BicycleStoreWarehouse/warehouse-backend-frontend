@@ -20,6 +20,14 @@ func WarehouseRoutes(r *gin.RouterGroup, db *gorm.DB) {
 		controllers.GenerateCertificate(c, db)
 	})
 
+	r.GET("/my_task", func(c *gin.Context) {
+		controllers.GetTasks(c, db)
+	})
+
+	r.POST("/my_task", func(c *gin.Context) {
+		controllers.CompleteTask(c, db)
+	})
+
 	r.GET("/dashboard-worker", func(c *gin.Context) {
 		controllers.DashboardWorker(c, db)
 	})

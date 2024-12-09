@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tworzenie Zadania</title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>Tworzenie Zadania</h1>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="/warehouse/dashboard">Strona główna</a></li>
+            <li><a href="/warehouse/dashboard">Przejdź do magazynu</a></li>
+            <li><a href="/hr/dashboard">Twój dashboard</a></li>
+            <li><a href="/hr/workers">Pracownicy</a></li>
+            <li><a href="/hr/orders">Zamówienia</a></li>
+            <li><a href="/hr/create_task">Zadania</a></li>
+            <li><a href="/logout">Wyloguj się</a></li>
+        </ul>
+    </nav>
+
+    <section class="content">
+
+    <!-- <h2>Tworzenie Zadania</h2> -->
+    <form method="POST">
+        <div class="mb-3">
+            <label for="user_id">Pracownik</label>
+            <select id="user_id" name="user_id" required>
+                <option value="">Wybierz pracownika</option>
+                {{range .Users}}
+                <option value="{{.ID}}">{{.Name}}</option>
+                {{end}}
+            </select>
+
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Opis zadania</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="deadline" class="form-label">Data realizacji</label>
+            <input type="date" class="form-control" id="deadline" name="deadline" required>
+        </div>
+        <div class="mb-3">
+            <label for="priority" class="form-label">Priorytet</label>
+            <select class="form-select" id="priority" name="priority" required>
+                <option value="1">Wysoki</option>
+                <option value="2">Średni</option>
+                <option value="3">Niski</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Utwórz zadanie</button>
+    </form>
+
+</section>
+
+</div>
+</body>
+</html>

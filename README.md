@@ -34,4 +34,4 @@ Jeśli jest metoda, która nawiązuje do modelu np. `CreateUser` lub `GetUserPas
 
 ### Zresetowanie bazy danych aby odtworzyć ją od nowa
 
-Jeśli zmieniłeś coś w bazie danych (migrations.go) to musisz wykonać tą komendę: docker_utils/clear.sh
+Jeśli zmieniłeś coś w bazie danych (migrations.go) to musisz wykonać tą komendę: `docker_utils/clear.sh`

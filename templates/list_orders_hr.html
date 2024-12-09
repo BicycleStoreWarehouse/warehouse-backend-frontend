@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR - List of Orders</title>
+    <link rel="stylesheet" href="/styles/style.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -71,7 +72,26 @@
     </style>
 </head>
 <body>
-    <h1>HR - List of Orders</h1>
+    <div class="container">
+        <header>
+            <h1>Lista zamówień</h1>
+        </header>
+
+    <nav>
+        <ul>
+            <li><a href="/warehouse/dashboard">Strona główna</a></li>
+            <li><a href="/warehouse/dashboard">Przejdź do magazynu</a></li>
+            <li><a href="/hr/dashboard">Twój dashboard</a></li>
+            <li><a href="/hr/workers">Pracownicy</a></li>
+            <li><a href="/hr/orders">Zamówienia</a></li>
+            <li><a href="/hr/create_task">Zadania</a></li>
+            <li><a href="/logout">Wyloguj się</a></li>
+        </ul>
+    </nav>
+
+    <section class="content">
+
+    <!-- <h1>HR - List of Orders</h1> -->
 
     {{ if .orders }}
     <table>
@@ -129,5 +149,7 @@
 
         <button type="submit">Add Order</button>
     </form>
+    </section>
+</div>  
 </body>
 </html>

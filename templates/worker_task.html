@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moje Zadania</title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+<div class="container mt-5">
+    <header>
+        <h1>Moje zadania</h1>
+    </header>
+    <nav>
+        <ul>
+            <li><a href="/warehouse/dashboard">Strona główna</a></li>
+            <li><a href="/warehouse/dashboard-worker">Przejdź do HR</a></li>
+            <li><a href="/warehouse/time-summary">Raport godzinowy</a></li>
+            <li><a href="/warehouse/my_task">Zadania</a></li>
+            <li><a href="/logout">Wyloguj się</a></li>
+        </ul>
+    </nav>
+
+    <section class="content">
+        <!-- <h2>Moje Zadania</h2> -->
+        <p>{{.Message}}</p>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Opis</th>
+                    <th>Data realizacji</th>
+                    <th>Priorytet</th>
+                    <th>Status</th>
+                    <th>Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Tasks}}
+                <tr>
+                    <td>{{.Description}}</td>
+                    <td>{{.Deadline.Format "2006-01-02"}}</td>
+                    <td>{{.Priority}}</td>
+                    <td>{{if .IsCompleted}}Wykonane{{else}}Niewykonane{{end}}</td>
+                    <td>
+                        {{if not .IsCompleted}}
+                        <form method="POST">
+                            <input type="hidden" name="task_id" value="{{.ID}}">
+                            <button type="submit" class="btn btn-success btn-sm">Wykonane</button>
+                        </form>
+                        {{end}}
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </section>
+</div>
+</body>
+</html>
