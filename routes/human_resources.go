@@ -20,6 +20,14 @@ func HumanResourcesRoutes(r *gin.RouterGroup, db *gorm.DB) {
 		controllers.CreateWorker(c, db)
 	})
 
+	r.GET("/create_task", func(c *gin.Context) {
+		controllers.CreateTaskHandler(c, db)
+	})
+
+	r.POST("/create_task", func(c *gin.Context) {
+		controllers.CreateTaskHandler(c, db)
+	})
+
 	r.GET("/workers/:id", func(c *gin.Context) {
 		controllers.DetailWorker(c, db)
 	})

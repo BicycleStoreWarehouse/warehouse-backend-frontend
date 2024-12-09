@@ -266,3 +266,87 @@ func UpdateApplication(c *gin.Context, db *gorm.DB) {
 func ShowReport(c *gin.Context, db *gorm.DB) {
 	c.HTML(http.StatusOK, "show_report.html", gin.H{"message": "Show Report"})
 }
+
+func CreateTaskHandler(c *gin.Context, db *gorm.DB) {
+	if c.Request.Method == http.MethodGet {
+		// Pobranie listy użytkowników
+		users, err := models.GetAllWorkers(db)
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+				"message": "Błąd przy pobieraniu użytkowników",
+			})
+			return
+		}
+
+		// Renderowanie formularza z listą użytkowników
+		c.HTML(http.StatusOK, "create_task.html", gin.H{
+			"Users": users,
+		})
+		return
+	}
+
+	// Pobranie i sprawdzenie poprawności danych wejściowych
+	userIDStr := c.PostForm("user_id")
+	description := c.PostForm("description")
+	deadlineStr := c.PostForm("deadline")
+	priorityStr := c.PostForm("priority")
+
+	// Parsowanie ID użytkownika
+	userID, err := strconv.ParseUint(userIDStr, 10, 64)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "create_task.html", gin.H{
+			"message": "Nieprawidłowe ID użytkownika",
+		})
+		return
+	}
+	userIDUint := uint(userID)
+
+	// Pobranie użytkownika z bazy
+	user, err := models.GetUserByID(db, userIDUint)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "create_task.html", gin.H{
+			"message": "Nie znaleziono użytkownika o podanym ID",
+		})
+		return
+	}
+
+	// Parsowanie priorytetu
+	var priority string
+	switch priorityStr {
+	case "1":
+		priority = "Niski"
+	case "2":
+		priority = "Średni"
+	case "3":
+		priority = "Wysoki"
+	default:
+		c.HTML(http.StatusBadRequest, "create_task.html", gin.H{
+			"message": "Nieprawidłowy priorytet (1 - Niski, 2 - Średni, 3 - Wysoki)",
+		})
+		return
+	}
+
+	// Parsowanie daty deadline
+	deadline, err := time.Parse("2006-01-02", deadlineStr)
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "create_task.html", gin.H{
+			"message": "Nieprawidłowy format daty (oczekiwany: YYYY-MM-DD)",
+		})
+		return
+	}
+
+	// Tworzenie zadania w bazie danych
+	task, err := models.CreateTask(db, user.ID, description, deadline, priority)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "create_task.html", gin.H{
+			"message": "Błąd podczas tworzenia zadania",
+		})
+		return
+	}
+
+	// Wyświetlenie potwierdzenia utworzenia zadania
+	c.HTML(http.StatusOK, "create_task.html", gin.H{
+		"message": fmt.Sprintf("Zadanie dla użytkownika %s zostało pomyślnie utworzone", user.Name),
+		"task":    task,
+	})
+}
