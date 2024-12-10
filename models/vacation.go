@@ -83,3 +83,7 @@ func UpdateVacationDates(db *gorm.DB, id uint, dateFrom, dateTo string, dateCoun
 func DeleteVacation(db *gorm.DB, id uint) error {
 	return db.Delete(&Vacation{}, id).Error
 }
+
+func UpdateVacationStatus(db *gorm.DB, id uint, status string) error {
+	return db.Model(&Vacation{}).Where("id = ?", id).Update("status", status).Error
+}

@@ -41,3 +41,9 @@ func GetTasksByUserID(db *gorm.DB, userID uint) ([]Task, error) {
 func MarkTaskAsCompleted(db *gorm.DB, taskID uint, UserID uint) error {
 	return db.Model(&Task{}).Where("id = ?", taskID).Update("is_completed", true).Error
 }
+
+func GetUncompletedTasksForAllUsers(db *gorm.DB) ([]Task, error) {
+	var tasks []Task
+	err := db.Preload("User").Where("is_completed = ?", false).Find(&tasks).Error
+	return tasks, err
+}

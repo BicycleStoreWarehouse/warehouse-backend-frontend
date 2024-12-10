@@ -278,14 +278,24 @@ func CreateTaskHandler(c *gin.Context, db *gorm.DB) {
 			return
 		}
 
-		// Renderowanie formularza z listą użytkowników
+		// Pobranie niewykonanych zadań
+		tasks, err := models.GetUncompletedTasksForAllUsers(db)
+		if err != nil {
+			c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+				"message": "Błąd przy pobieraniu zadań",
+			})
+			return
+		}
+
+		// Renderowanie formularza i tabeli
 		c.HTML(http.StatusOK, "create_task.html", gin.H{
 			"Users": users,
+			"Tasks": tasks,
 		})
 		return
 	}
 
-	// Pobranie i sprawdzenie poprawności danych wejściowych
+	// Obsługa metody POST - tworzenie nowego zadania
 	userIDStr := c.PostForm("user_id")
 	description := c.PostForm("description")
 	deadlineStr := c.PostForm("deadline")
@@ -336,7 +346,7 @@ func CreateTaskHandler(c *gin.Context, db *gorm.DB) {
 	}
 
 	// Tworzenie zadania w bazie danych
-	task, err := models.CreateTask(db, user.ID, description, deadline, priority)
+	_, err = models.CreateTask(db, user.ID, description, deadline, priority)
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "create_task.html", gin.H{
 			"message": "Błąd podczas tworzenia zadania",
@@ -344,9 +354,94 @@ func CreateTaskHandler(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// Wyświetlenie potwierdzenia utworzenia zadania
+	// Pobranie zaktualizowanej listy użytkowników i zadań
+	users, err := models.GetAllWorkers(db)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"message": "Błąd przy pobieraniu użytkowników",
+		})
+		return
+	}
+
+	tasks, err := models.GetUncompletedTasksForAllUsers(db)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"message": "Błąd przy pobieraniu zadań",
+		})
+		return
+	}
+
+	// Renderowanie formularza i tabeli z komunikatem o sukcesie
 	c.HTML(http.StatusOK, "create_task.html", gin.H{
 		"message": fmt.Sprintf("Zadanie dla użytkownika %s zostało pomyślnie utworzone", user.Name),
-		"task":    task,
+		"Users":   users,
+		"Tasks":   tasks,
+	})
+}
+
+func GetVacations(c *gin.Context, db *gorm.DB) {
+	// Sprawdzenie, czy użytkownik jest zalogowany
+	users, err := models.GetAllWorkers(db)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "error.html", gin.H{
+			"message": "Błąd przy pobieraniu użytkowników",
+		})
+		return
+	}
+
+	// Pobranie wszystkich wniosków urlopowych z bazy danych
+	vacations, err := models.GetAllVacations(db)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "vacation.html", gin.H{
+			"error": "Nie udało się pobrać wniosków urlopowych",
+		})
+		return
+	}
+
+	// Renderowanie widoku z listą wniosków urlopowych
+	c.HTML(http.StatusOK, "vacation.html", gin.H{
+		"Vacations": vacations,
+		"Users":     users,
+	})
+}
+
+func UpdateVacationStatus(c *gin.Context, db *gorm.DB) {
+	// Pobranie vacationID z formularza
+	vacationIDStr := c.PostForm("vacation_id")
+	vacationID, err := strconv.Atoi(vacationIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Niepoprawny identyfikator urlopu"})
+		return
+	}
+
+	// Pobranie nowego statusu (zatwierdzony/odrzucony) z formularza
+	status := c.PostForm("status")
+	if status != "Zatwierdzony" && status != "Odrzucony" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Niepoprawny status"})
+		return
+	}
+
+	// Aktualizacja statusu wniosku urlopowego
+	err = models.UpdateVacationStatus(db, uint(vacationID), status)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "vacation.html", gin.H{
+			"error": "Nie udało się zaktualizować statusu wniosku urlopowego",
+		})
+		return
+	}
+
+	// Pobranie zaktualizowanej listy wniosków urlopowych
+	vacations, err := models.GetAllVacations(db)
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "vacation.html", gin.H{
+			"error": "Nie udało się pobrać wniosków urlopowych",
+		})
+		return
+	}
+
+	// Renderowanie widoku z zaktualizowaną listą wniosków urlopowych
+	c.HTML(http.StatusOK, "vacation.html", gin.H{
+		"Vacations": vacations,
+		"Message":   "Status wniosku został zaktualizowany.",
 	})
 }
