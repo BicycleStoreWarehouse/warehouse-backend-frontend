@@ -20,6 +20,7 @@
             <li><a href="/hr/workers">Pracownicy</a></li>
             <li><a href="/hr/orders">Zamówienia</a></li>
             <li><a href="/hr/create_task">Zadania</a></li>
+            <li><a href="/hr/vacation">Urlopy</a></li>
             <li><a href="/logout">Wyloguj się</a></li>
         </ul>
     </nav>
@@ -56,6 +57,33 @@
         </div>
         <button type="submit" class="btn btn-primary">Utwórz zadanie</button>
     </form>
+
+    <h2>Zadania pracowników</h2>
+    <p>{{.Message}}</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Imię</th>
+                <th>Nazwisko</th>
+                <th>Opis zadania</th>
+                <th>Data realizacji</th>
+                <th>Priorytet</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{range .Tasks}}
+            <tr>
+                <td>{{.User.Name}}</td>
+                <td>{{.User.Surname}}</td>
+                <td>{{.Description}}</td>
+                <td>{{.Deadline.Format "2006-01-02"}}</td>
+                <td>{{.Priority}}</td>
+                <td>{{if .IsCompleted}}Wykonane{{else}}Niewykonane{{end}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
 
 </section>
 

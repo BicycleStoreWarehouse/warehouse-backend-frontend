@@ -28,6 +28,14 @@ func HumanResourcesRoutes(r *gin.RouterGroup, db *gorm.DB) {
 		controllers.CreateTaskHandler(c, db)
 	})
 
+	r.GET("/vacation", func(c *gin.Context) {
+		controllers.GetVacations(c, db)
+	})
+
+	r.POST("/vacation", func(c *gin.Context) {
+		controllers.UpdateVacationStatus(c, db)
+	})
+
 	r.GET("/workers/:id", func(c *gin.Context) {
 		controllers.DetailWorker(c, db)
 	})
