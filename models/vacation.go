@@ -53,7 +53,7 @@ func GetVacationsByUserID(db *gorm.DB, userID uint) ([]Vacation, error) {
 
 func GetAllVacations(db *gorm.DB) ([]Vacation, error) {
 	var vacations []Vacation
-	err := db.Preload("User").Find(&vacations).Error
+	err := db.Where("status = ?", "Wysłany").Preload("User").Find(&vacations).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil, gorm.ErrRecordNotFound

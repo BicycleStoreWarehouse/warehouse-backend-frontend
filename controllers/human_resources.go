@@ -29,7 +29,7 @@ func HrDashboard(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	users, _ := models.GetAllUsers(db)
+	vacations, _ := models.GetAllVacations(db)
 
 	sales_invoices, purchase_invoices, _ := models.GetPendingInvoices(db)
 
@@ -57,9 +57,22 @@ func HrDashboard(c *gin.Context, db *gorm.DB) {
 		sales_invoices_data = append(sales_invoices_data, sales_invoice_data)
 	}
 
+	var vacationsData []map[string]interface{}
+	for _, vacation := range vacations {
+		vacationData := map[string]interface{}{
+			"ID":           vacation.ID,
+			"UserName":     vacation.User.Name + " " + vacation.User.Surname,
+			"DateFrom":     vacation.DateFrom,
+			"DateTo":       vacation.DateTo,
+			"DateCount":    vacation.DateCount,
+			"Status":       vacation.Status,
+		}
+		vacationsData = append(vacationsData, vacationData)
+	}
+
 	c.HTML(http.StatusOK, "dashboard_hr.html", gin.H{
 		"user_name":                 user.Name,
-		"users":                     users,
+		"pending_vacations":         vacationsData,
 		"pending_purchase_invoices": purchase_invoices_data,
 		"pending_sales_invoices":    sales_invoices_data,
 	})
