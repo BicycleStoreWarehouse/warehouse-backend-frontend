@@ -1,156 +1,263 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR - List of Orders</title>
-    <link rel="stylesheet" href="/styles/style.css">
+    <title>HR - Lista Zamówień</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+        :root {
+            --primary-color: #007BFF;
+            --secondary-color: #6c757d;
+            --background-light: #f4f4f4;
+            --text-color: #333;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
-        h1 {
-            color: #333;
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: var(--background-light);
+            color: var(--text-color);
+            line-height: 1.6;
         }
-        table {
+
+        .container {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        .no-orders {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 18px;
-            color: #666;
-        }
-        form {
-            max-width: 600px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f4f4f4;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        label {
+
+        header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        header h1 i {
+            margin-right: 10px;
+        }
+
+        nav {
+            background-color: var(--white);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        nav ul {
+            display: flex;
+            list-style-type: none;
+            padding: 10px 15px;
+        }
+
+        nav ul li {
+            margin-right: 15px;
+        }
+
+        nav ul li a {
+            color: var(--primary-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            color: var(--secondary-color);
+        }
+
+        nav ul li a i {
+            margin-right: 5px;
+        }
+
+        .content {
+            background-color: var(--white);
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .orders-table th,
+        .orders-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .orders-table thead {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .orders-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .orders-table tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .no-orders {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            color: var(--secondary-color);
+        }
+
+        .order-form {
+            background-color: var(--background-light);
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 20px auto;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-form label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
+            font-weight: 600;
+            color: var(--text-color);
         }
-        input, select {
+
+        .order-form select,
+        .order-form input[type="number"] {
             width: 100%;
             padding: 10px;
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
             border-radius: 4px;
+            transition: border-color 0.3s ease;
         }
-        button {
+
+        .order-form select:focus,
+        .order-form input[type="number"]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .order-form button {
             width: 100%;
             padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            font-size: 16px;
+            background-color: var(--primary-color);
+            color: var(--white);
             border: none;
             border-radius: 4px;
             cursor: pointer;
+            transition: background-color 0.3s ease;
         }
-        button:hover {
-            background-color: #45a049;
+
+        .order-form button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Lista zamówień</h1>
+            <h1><i class="fas fa-list-alt"></i>Lista zamówień</h1>
+            <a href="/logout" class="logout-btn" style="color: white;"><i class="fas fa-sign-out-alt"></i> Wyloguj się</a>
         </header>
 
-    <nav>
-        <ul>
-            <li><a href="/warehouse/dashboard">Strona główna</a></li>
-            <li><a href="/warehouse/dashboard">Przejdź do magazynu</a></li>
-            <li><a href="/hr/dashboard">Twój dashboard</a></li>
-            <li><a href="/hr/workers">Pracownicy</a></li>
-            <li><a href="/hr/orders">Zamówienia</a></li>
-            <li><a href="/hr/create_task">Zadania</a></li>
-            <li><a href="/hr/vacation">Urlopy</a></li>
-            <li><a href="/logout">Wyloguj się</a></li>
-        </ul>
-    </nav>
+        <nav>
+            <ul>
+                <li><a href="/warehouse/dashboard"><i class="fas fa-home"></i>Strona główna</a></li>
+                <li><a href="/warehouse/dashboard"><i class="fas fa-warehouse"></i>Przejdź do magazynu</a></li>
+                <li><a href="/hr/dashboard"><i class="fas fa-tachometer-alt"></i>Twój dashboard</a></li>
+                <li><a href="/hr/workers"><i class="fas fa-users"></i>Pracownicy</a></li>
+                <li><a href="/hr/orders"><i class="fas fa-shopping-cart"></i>Zamówienia</a></li>
+                <li><a href="/hr/create_task"><i class="fas fa-tasks"></i>Zadania</a></li>
+                <li><a href="/hr/vacation"><i class="fas fa-umbrella-beach"></i>Urlopy</a></li>
+            </ul>
+        </nav>
 
-    <section class="content">
-
-    <!-- <h1>HR - List of Orders</h1> -->
-
-    {{ if .orders }}
-    <table>
-        <thead>
-            <tr>
-                <th>Order ID</th>
-                <th>Bicycle</th>
-                <th>Bicycle Part</th>
-                <th>Quantity</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{ range .orders }}
-            <tr>
-                <td>{{ .ID }}</td>
-                <td>{{ if .BicycleID }}{{ .Bicycle.Name }}{{ else }}-{{ end }}</td>
-                <td>{{ if .BicyclePartID }}{{ .BicyclePart.Name }}{{ else }}-{{ end }}</td>
-                <td>{{ .Quantity }}</td>
-            </tr>
+        <section class="content">
+            {{ if .orders }}
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>ID Zamówienia</th>
+                        <th>Rower</th>
+                        <th>Część Roweru</th>
+                        <th>Ilość</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range .orders }}
+                    <tr>
+                        <td>{{ .ID }}</td>
+                        <td>{{ if .BicycleID }}{{ .Bicycle.Name }}{{ else }}-{{ end }}</td>
+                        <td>{{ if .BicyclePartID }}{{ .BicyclePart.Name }}{{ else }}-{{ end }}</td>
+                        <td>{{ .Quantity }}</td>
+                    </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+            {{ else }}
+            <div class="no-orders">
+                <i class="fas fa-inbox" style="font-size: 3rem; color: var(--secondary-color); margin-bottom: 10px;"></i>
+                <p>Brak dostępnych zamówień</p>
+            </div>
             {{ end }}
-        </tbody>
-    </table>
-    {{ else }}
-    <p class="no-orders">No orders available.</p>
-    {{ end }}
 
-    <h1>Add New Order</h1>
-    <form method="POST">
-        <label for="user_id">User</label>
-        <select id="user_id" name="user_id">
-            <option value="">Select a User</option>
-            {{ range .Users }}
-            <option value="{{ .ID }}">{{ .Name }}</option>
-            {{ end }}
-        </select>
+            <form method="POST" class="order-form">
+                <label for="user_id">Użytkownik</label>
+                <select id="user_id" name="user_id" required>
+                    <option value="">Wybierz użytkownika</option>
+                    {{ range .Users }}
+                    <option value="{{ .ID }}">{{ .Name }}</option>
+                    {{ end }}
+                </select>
 
-        <label for="bicycle_id">Bicycle</label>
-        <select id="bicycle_id" name="bicycle_id">
-            <option value="">Select a Bicycle</option>
-            {{ range .Bicycles }}
-            <option value="{{ .ID }}">{{ .Name }}</option>
-            {{ end }}
-        </select>
+                <label for="bicycle_id">Rower</label>
+                <select id="bicycle_id" name="bicycle_id">
+                    <option value="">Wybierz rower</option>
+                    {{ range .Bicycles }}
+                    <option value="{{ .ID }}">{{ .Name }}</option>
+                    {{ end }}
+                </select>
 
-        <label for="bicycle_part_id">Bicycle Part</label>
-        <select id="bicycle_part_id" name="bicycle_part_id">
-            <option value="">Select a Bicycle Part</option>
-            {{ range .BicycleParts }}
-            <option value="{{ .ID }}">{{ .Name }}</option>
-            {{ end }}
-        </select>
+                <label for="bicycle_part_id">Część Roweru</label>
+                <select id="bicycle_part_id" name="bicycle_part_id">
+                    <option value="">Wybierz część roweru</option>
+                    {{ range .BicycleParts }}
+                    <option value="{{ .ID }}">{{ .Name }}</option>
+                    {{ end }}
+                </select>
 
-        <label for="quantity">Quantity</label>
-        <input type="number" id="quantity" name="quantity" min="1" required>
+                <label for="quantity">Ilość</label>
+                <input type="number" id="quantity" name="quantity" min="1" required>
 
-        <button type="submit">Add Order</button>
-    </form>
-    </section>
-</div>  
+                <button type="submit">Dodaj zamówienie</button>
+            </form>
+        </section>
+    </div>
 </body>
 </html>
