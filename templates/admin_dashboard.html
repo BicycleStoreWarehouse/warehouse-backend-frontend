@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Warehouse</title>
+    <link rel="stylesheet" href="/styles/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Witaj {{.user_name}}</h1>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="/admin/dashboard">Strona główna</a></li>
+                <li><a href="/admin/dashboard-worker">Przejdź do HR</a></li>
+                <li><a href="/admin/time-summary">Raport godzinowy</a></li>
+                <li><a href="/admin/my_task">Zadania</a></li>
+                <li><a href="/logout">Wyloguj się</a></li>
+            </ul>
+        </nav>
+
+        <section class="content">
+            <p>Witaj w panelu administracyjnym magazynu. Jesteś zalogowany jako: <strong>{{.user_name}}</strong></p>
+        </section>
+    </div> 
+</body>
+</html>

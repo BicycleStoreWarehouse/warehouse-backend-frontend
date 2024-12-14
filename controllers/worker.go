@@ -30,8 +30,30 @@ func WorkerDashboard(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// Pobierz liczbę niewykonanych zadań dla użytkownika
+	taskCount, err := models.GetUncompletedTasksCountByUserID(db, userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "dashboard_warehouse.html", gin.H{
+			"message": "Coś poszło nie tak podczas sprawdzania zadań",
+		})
+		return
+	}
+
+	// Przygotowanie odpowiedniego komunikatu do szablonu
+	var taskMessage string
+	if taskCount == 1 {
+		taskMessage = "Masz 1 zadanie do wykonania!"
+	} else if taskCount > 1 && taskCount <= 4 {
+		taskMessage = fmt.Sprintf("Masz %d zadania do wykonania!", taskCount)
+	} else {
+		taskMessage = fmt.Sprintf("Masz %d zadań do wykonania!", taskCount)
+	}
+
 	c.HTML(http.StatusOK, "dashboard_warehouse.html", gin.H{
-		"user_name": user.Name,
+		"user_name":     user.Name,
+		"task_count":    taskCount,
+		"task_message":  taskMessage,
+		"has_new_tasks": taskCount > 0, // Zmienna pomocnicza do łatwego użycia w widoku
 	})
 }
 
@@ -67,6 +89,7 @@ func DashboardWorker(c *gin.Context, db *gorm.DB) {
 			"date_to":    vacation.DateTo,
 			"date_count": vacation.DateCount,
 			"status":     vacation.Status,
+			"reason":     vacation.RejectionReason,
 		})
 	}
 
@@ -285,7 +308,7 @@ func GetTasks(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// Pobranie zadań dla użytkownika z bazy danych
+	// Pobranie zadań dla użytkownika z bazy danych *TYLKO NIEWYKONANYCH*
 	tasks, err := models.GetTasksByUserID(db, userID.(uint))
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "worker_task.html", gin.H{
