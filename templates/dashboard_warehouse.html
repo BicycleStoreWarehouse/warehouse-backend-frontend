@@ -66,6 +66,13 @@
         <button class="btn" id="closeModal">OK</button>
     </div>
 
+        <!-- Wyświetlanie komunikatu o nowych zadaniach -->
+    {{ if .has_new_tasks }}
+    <p>{{ .task_message }}</p>
+    {{ else }}
+        <p>Nie masz żadnych nowych zadań.</p>
+    {{ end }}
+
         <nav>
             <ul>
                 <li><a href="/warehouse/dashboard">Strona główna</a></li>
