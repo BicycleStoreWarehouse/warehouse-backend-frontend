@@ -60,12 +60,12 @@ func HrDashboard(c *gin.Context, db *gorm.DB) {
 	var vacationsData []map[string]interface{}
 	for _, vacation := range vacations {
 		vacationData := map[string]interface{}{
-			"ID":           vacation.ID,
-			"UserName":     vacation.User.Name + " " + vacation.User.Surname,
-			"DateFrom":     vacation.DateFrom,
-			"DateTo":       vacation.DateTo,
-			"DateCount":    vacation.DateCount,
-			"Status":       vacation.Status,
+			"ID":        vacation.ID,
+			"UserName":  vacation.User.Name + " " + vacation.User.Surname,
+			"DateFrom":  vacation.DateFrom,
+			"DateTo":    vacation.DateTo,
+			"DateCount": vacation.DateCount,
+			"Status":    vacation.Status,
 		}
 		vacationsData = append(vacationsData, vacationData)
 	}
@@ -419,7 +419,6 @@ func GetVacations(c *gin.Context, db *gorm.DB) {
 }
 
 func UpdateVacationStatus(c *gin.Context, db *gorm.DB) {
-	// Pobranie vacationID z formularza
 	vacationIDStr := c.PostForm("vacation_id")
 	vacationID, err := strconv.Atoi(vacationIDStr)
 	if err != nil {
@@ -429,13 +428,19 @@ func UpdateVacationStatus(c *gin.Context, db *gorm.DB) {
 
 	// Pobranie nowego statusu (zatwierdzony/odrzucony) z formularza
 	status := c.PostForm("status")
-	if status != "Zatwierdzony" && status != "Odrzucony" {
+	if status != "Zaakceptowany" && status != "Odrzucony" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Niepoprawny status"})
 		return
 	}
 
+	var rejectionReason *string
+	if status == "Odrzucony" {
+		reason := c.PostForm("rejection_reason")
+		rejectionReason = &reason
+	}
+
 	// Aktualizacja statusu wniosku urlopowego
-	err = models.UpdateVacationStatus(db, uint(vacationID), status)
+	err = models.UpdateVacationStatus(db, uint(vacationID), status, rejectionReason)
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "vacation.html", gin.H{
 			"error": "Nie udało się zaktualizować statusu wniosku urlopowego",

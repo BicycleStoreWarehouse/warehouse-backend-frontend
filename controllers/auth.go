@@ -45,6 +45,8 @@ func Login(c *gin.Context, db *gorm.DB) {
 		c.Redirect(http.StatusFound, "/warehouse/dashboard")
 	} else if position == "HR" {
 		c.Redirect(http.StatusFound, "/hr/dashboard")
+	} else if position == "Admin" {
+		c.Redirect(http.StatusFound, "/admin/dashboard")
 	} else {
 		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
 			"error": "Twoje stanowisko jest nieprawidłowe",

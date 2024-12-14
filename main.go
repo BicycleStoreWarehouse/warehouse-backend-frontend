@@ -65,6 +65,12 @@ func main() {
 		routes.HumanResourcesRoutes(hr, db)
 	}
 
+	admin := r.Group("/admin")
+	admin.Use(middleware.LoginRequiredMiddleware(), middleware.AdminMiddleware(db))
+	{
+		routes.AdminRoutes(admin, db)
+	}
+
 	r.GET("/logout", middleware.LoginRequiredMiddleware(), func(c *gin.Context) {
 		session := sessions.Default(c)
 		session.Clear()

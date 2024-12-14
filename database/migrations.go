@@ -10,9 +10,11 @@ import (
 func LoadExampleData(db *gorm.DB) {
 	twoYearsAgo := time.Now().AddDate(-2, 0, 0)
 	threeYearsAgo := time.Now().AddDate(-3, 0, 0)
+	fiveYearsAgo := time.Now().AddDate(-5, 0, 0)
 
 	position_worker, _ := models.CreatePosition(db, "Magazynowy")
 	position_hr, _ := models.CreatePosition(db, "HR")
+	position_admin, _ := models.CreatePosition(db, "Admin")
 
 	worker_1, _ := models.CreateUser(db, "Jan", "Kowalski", "jan.kowalski@example.com", position_worker, twoYearsAgo, "123456789", "hashed_password1", "Chmielna 18", "Warszawa", "Mazowieckie", "05-500", "Polska", "26116055227582461851149641", "Millenium SA")
 	worker_2, _ := models.CreateUser(db, "Anna", "Nowak", "anna.nowak@example.com", position_worker, twoYearsAgo, "987654321", "hashed_password2", "Kamienista 92", "Kraków", "Małopolskie", "02-365", "Polska", "30160073920644265811478567", "BNP Paribas Bank SA")
@@ -25,6 +27,8 @@ func LoadExampleData(db *gorm.DB) {
 	models.CreateUser(db, "Ewa", "Zielińska", "ewa.zielinska@example.com", position_hr, threeYearsAgo, "222222222", "hashed_password8", "Kolejowa 88", "Wrocław", "Dolnośląskie", "34-460", "Polska", "18114000680270073853609820", "mBank SA")
 	models.CreateUser(db, "Karolina", "Wiśniewska", "karolina.wisniewska@example.com", position_hr, threeYearsAgo, "888888888", "hashed_password9", "Centralna 1", "Gdańsk", "Pomorskie", "00-500", "Polska", "78101090585540852529024634", "Narodowy Bank Polski")
 	models.CreateUser(db, "Łukasz", "Kowal", "lukasz.kowal@example.com", position_hr, threeYearsAgo, "999999999", "hashed_password10", "Boczna 99", "Piaseczno", "Mazowieckie", "95-530", "Polska", "44249035852272526309101433", "Alior Bank SA")
+
+	models.CreateUser(db, "Piotr", "Mierzwa", "piotr.mierzwa@example.com", position_admin, fiveYearsAgo, "123321123", "hashed_password0", "Chmielna 18", "Łódź", "Łódzkie", "91-404", "Polska", "901060814452284871740455437276", "Bank BPH SA")
 
 	address_1, _ := models.CreateAddress(db, "ul. Nowa 1", "Łódź", "Łódzkie", "90-001", "Polska")
 	address_2, _ := models.CreateAddress(db, "ul. Kwiatowa 15", "Warszawa", "Mazowieckie", "00-900", "Polska")

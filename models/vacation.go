@@ -6,12 +6,13 @@ import (
 
 type Vacation struct {
 	gorm.Model
-	UserID    uint   `gorm:"not null"`
-	User      User   `gorm:"foreignKey:UserID"`
-	DateFrom  string `gorm:"not null"`
-	DateTo    string `gorm:"not null"`
-	DateCount int    `gorm:"not null"`
-	Status    string `gorm:"default:'Wysłany'"`
+	UserID          uint   `gorm:"not null"`
+	User            User   `gorm:"foreignKey:UserID"`
+	DateFrom        string `gorm:"not null"`
+	DateTo          string `gorm:"not null"`
+	DateCount       int    `gorm:"not null"`
+	Status          string `gorm:"default:'Wysłany'"`
+	RejectionReason string `gorm:"default:null"`
 }
 
 func CreateVacation(db *gorm.DB, userID uint, dateFrom, dateTo string, dateCount int, status string) (Vacation, error) {
@@ -84,6 +85,10 @@ func DeleteVacation(db *gorm.DB, id uint) error {
 	return db.Delete(&Vacation{}, id).Error
 }
 
-func UpdateVacationStatus(db *gorm.DB, id uint, status string) error {
-	return db.Model(&Vacation{}).Where("id = ?", id).Update("status", status).Error
+func UpdateVacationStatus(db *gorm.DB, id uint, status string, rejectionReason *string) error {
+	updateData := map[string]interface{}{"status": status}
+	if rejectionReason != nil {
+		updateData["rejection_reason"] = *rejectionReason
+	}
+	return db.Model(&Vacation{}).Where("id = ?", id).Updates(updateData).Error
 }

@@ -30,10 +30,10 @@ func CreateTask(db *gorm.DB, userID uint, description string, deadline time.Time
 	return task, result.Error
 }
 
-// Pobieranie zadań przypisanych do pracownika
+// Pobieranie niewykonanych zadań przypisanych do pracownika
 func GetTasksByUserID(db *gorm.DB, userID uint) ([]Task, error) {
 	var tasks []Task
-	err := db.Where("user_id = ?", userID).Order("deadline ASC, priority ASC").Find(&tasks).Error
+	err := db.Where("user_id = ?", userID).Where("is_completed = ?", false).Order("deadline ASC, priority ASC").Find(&tasks).Error
 	return tasks, err
 }
 
@@ -42,8 +42,16 @@ func MarkTaskAsCompleted(db *gorm.DB, taskID uint, UserID uint) error {
 	return db.Model(&Task{}).Where("id = ?", taskID).Update("is_completed", true).Error
 }
 
+// Pobieranie niewykonanych zadań pracowników
 func GetUncompletedTasksForAllUsers(db *gorm.DB) ([]Task, error) {
 	var tasks []Task
 	err := db.Preload("User").Where("is_completed = ?", false).Find(&tasks).Error
 	return tasks, err
+}
+
+// Pobieranie liczby niewykonanych zadań dla użytkownika
+func GetUncompletedTasksCountByUserID(db *gorm.DB, userID uint) (int64, error) {
+	var count int64
+	err := db.Model(&Task{}).Where("user_id = ? AND is_completed = ?", userID, false).Count(&count).Error
+	return count, err
 }

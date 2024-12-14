@@ -5,6 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Urlopy</title>
     <link rel="stylesheet" href="/styles/style.css">
+    <style>
+button[type="button"] {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+button[type="button"]:hover {
+    background-color: #0056b3;
+}
+    </style>
 </head>
 <body>
     <div class="container">
@@ -49,18 +64,46 @@
                                 {{if eq .Status "Wysłany"}}
                                 <form method="POST">
                                     <input type="hidden" name="vacation_id" value="{{.ID}}">
-                                    <button type="submit" name="status" value="Zatwierdzony">Zatwierdź</button>
-                                    <button type="submit" name="status" value="Odrzucony">Odrzuć</button>
+                                    <button type="submit" name="status" value="Zaakceptowany">Zatwierdź</button>
+                                    <button type="button" onclick="openRejectionModal('{{.ID}}')">Odrzuć</button>
                                 </form>
                                 {{else}}
                                 <span>{{.Status}}</span>
+                                {{if eq .Status "Odrzucony"}}
+                                <p>Powód: {{.RejectionReason}}</p>
+                                {{end}}
                                 {{end}}
                             </td>
                         </tr>
                         {{end}}
                     </tbody>
                 </table>
+
+                        <!-- Modal do wpisania powodu odrzucenia -->
+                <div id="rejectionModal" class="modal" style="display: none;">
+                    <div id="modalContent">
+                        <form id="rejectionForm" method="POST" action="/hr/vacation">
+                            <input type="hidden" id="vacationIdInput" name="vacation_id" value="">
+                            <label for="rejectionReason">Podaj powód odrzucenia:</label>
+                            <input type="text" id="rejectionReason" name="rejection_reason" required>
+                            <button type="submit" name="status" value="Odrzucony">Odrzuć</button>
+                            <button type="button" onclick="closeRejectionModal()">Anuluj</button>
+                        </form>
+                    </div>
+                </div>
             </section>
     </div>
+
+    <script>
+        function openRejectionModal(vacationId) {
+            document.getElementById('vacationIdInput').value = vacationId;
+            document.getElementById('rejectionModal').style.display = 'block';
+        }
+    
+        function closeRejectionModal() {
+            document.getElementById('rejectionModal').style.display = 'none';
+        }
+    </script>
+    
 </body>
 </html>
