@@ -66,7 +66,7 @@
                 <th>Imię</th>
                 <th>Nazwisko</th>
                 <th>Opis zadania</th>
-                <th>Data realizacji</th>
+                <th>Ilość dni na realizację</th>
                 <th>Priorytet</th>
                 <th>Status</th>
             </tr>
@@ -77,7 +77,13 @@
                 <td>{{.User.Name}}</td>
                 <td>{{.User.Surname}}</td>
                 <td>{{.Description}}</td>
-                <td>{{.Deadline.Format "2006-01-02"}}</td>
+                <td>
+                    {{if lt .DaysUntilDeadline 0}}
+                        <span style="color: red;">{{.DaysUntilDeadline}}</span>
+                    {{else}}
+                        {{.DaysUntilDeadline}}
+                    {{end}}
+                </td>
                 <td>{{.Priority}}</td>
                 <td>{{if .IsCompleted}}Wykonane{{else}}Niewykonane{{end}}</td>
             </tr>

@@ -57,21 +57,33 @@
     <div id="modalBackdrop"></div>
 
     <!-- Modal -->
-    <div id="taskModal">
-        {{ if .has_new_tasks }}
-            <p>{{ .task_message }}</p>
-        {{ else }}
+{{ if or .has_overdue_tasks .has_new_tasks }}
+<div id="taskModal">
+    {{ if .has_overdue_tasks }}
+        <p style="color: red;">{{ .overdue_message }}</p>
+    {{ end }}
+    {{ if .has_new_tasks }}
+        <p>{{ .task_message }}</p>
+    {{ else }}
+        {{ if not .has_overdue_tasks }}
             <p>Nie masz żadnych nowych zadań.</p>
         {{ end }}
-        <button class="btn" id="closeModal">OK</button>
-    </div>
+    {{ end }}
+    <button class="btn" id="closeModal">OK</button>
+</div>
+{{ end }}
 
-        <!-- Wyświetlanie komunikatu o nowych zadaniach -->
-    {{ if .has_new_tasks }}
-    <p>{{ .task_message }}</p>
-    {{ else }}
+<!-- Wyświetlanie komunikatu o nowych zadaniach -->
+{{ if .has_overdue_tasks }}
+<p style="color: red;">{{ .overdue_message }}</p>
+{{ end }}
+{{ if .has_new_tasks }}
+<p>{{ .task_message }}</p>
+{{ else }}
+    {{ if not .has_overdue_tasks }}
         <p>Nie masz żadnych nowych zadań.</p>
     {{ end }}
+{{ end }}
 
         <nav>
             <ul>

@@ -39,6 +39,15 @@ func WorkerDashboard(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// Pobierz liczbę przeterminowanych zadań
+	overdueCount, err := models.GetOverdueTasksCountByUserID(db, userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "dashboard_warehouse.html", gin.H{
+			"message": "Coś poszło nie tak podczas sprawdzania przeterminowanych zadań",
+		})
+		return
+	}
+
 	// Przygotowanie odpowiedniego komunikatu do szablonu
 	var taskMessage string
 	if taskCount == 1 {
@@ -49,11 +58,24 @@ func WorkerDashboard(c *gin.Context, db *gorm.DB) {
 		taskMessage = fmt.Sprintf("Masz %d zadań do wykonania!", taskCount)
 	}
 
+	// Przygotowanie odpowiedniego komunikatu do szablonu
+	var overdueMessage string
+	if overdueCount == 1 {
+		overdueMessage = "Masz 1 zadanie przeterminowane do wykonania!"
+	} else if overdueCount > 1 && overdueCount <= 4 {
+		overdueMessage = fmt.Sprintf("Masz %d zadania przeterminowane do wykonania!", overdueCount)
+	} else {
+		overdueMessage = fmt.Sprintf("Masz %d zadań przeterminowanych do wykonania!", overdueCount)
+	}
+
 	c.HTML(http.StatusOK, "dashboard_warehouse.html", gin.H{
-		"user_name":     user.Name,
-		"task_count":    taskCount,
-		"task_message":  taskMessage,
-		"has_new_tasks": taskCount > 0, // Zmienna pomocnicza do łatwego użycia w widoku
+		"user_name":         user.Name,
+		"task_count":        taskCount,
+		"task_message":      taskMessage,
+		"overdue_count":     overdueCount,
+		"overdue_message":   overdueMessage,
+		"has_new_tasks":     taskCount > 0,
+		"has_overdue_tasks": overdueCount > 0,
 	})
 }
 
@@ -317,9 +339,25 @@ func GetTasks(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// Obliczenie liczby dni do daty realizacji dla każdego zadania
+	now := time.Now()
+	type TaskWithDays struct {
+		models.Task
+		DaysUntilDeadline int
+	}
+
+	var tasksWithDays []TaskWithDays
+	for _, task := range tasks {
+		daysUntil := int(task.Deadline.Sub(now).Hours() / 24)
+		tasksWithDays = append(tasksWithDays, TaskWithDays{
+			Task:              task,
+			DaysUntilDeadline: daysUntil,
+		})
+	}
+
 	// Renderowanie szablonu HTML z zadaniami
 	c.HTML(http.StatusOK, "worker_task.html", gin.H{
-		"Tasks":   tasks,
+		"Tasks":   tasksWithDays,
 		"Message": "Witaj, oto Twoje zadania.",
 	})
 }
@@ -358,6 +396,11 @@ func CompleteTask(c *gin.Context, db *gorm.DB) {
 			"error": "Nie udało się pobrać zadań",
 		})
 		return
+	}
+
+	// Oblicz DaysUntilDeadline dla każdego zadania
+	for i := range tasks {
+		tasks[i].DaysUntilDeadline = int(tasks[i].Deadline.Sub(time.Now()).Hours() / 24)
 	}
 
 	// Przekazanie zadań do widoku
