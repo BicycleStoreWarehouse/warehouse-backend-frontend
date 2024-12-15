@@ -300,10 +300,26 @@ func CreateTaskHandler(c *gin.Context, db *gorm.DB) {
 			return
 		}
 
+		// Obliczenie liczby dni do daty realizacji dla każdego zadania
+		now := time.Now()
+		type TaskWithDays struct {
+			models.Task
+			DaysUntilDeadline int
+		}
+
+		var tasksWithDays []TaskWithDays
+		for _, task := range tasks {
+			daysUntil := int(task.Deadline.Sub(now).Hours() / 24)
+			tasksWithDays = append(tasksWithDays, TaskWithDays{
+				Task:              task,
+				DaysUntilDeadline: daysUntil,
+			})
+		}
+
 		// Renderowanie formularza i tabeli
 		c.HTML(http.StatusOK, "create_task.html", gin.H{
 			"Users": users,
-			"Tasks": tasks,
+			"Tasks": tasksWithDays,
 		})
 		return
 	}
@@ -384,11 +400,28 @@ func CreateTaskHandler(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// Obliczenie liczby dni do daty realizacji dla każdego zadania
+	now := time.Now()
+	type TaskWithDays struct {
+		models.Task
+		DaysUntilDeadline int
+	}
+
+	// Obliczenie liczby dni do daty realizacji dla każdego zadania
+	var tasksWithDays []TaskWithDays
+	for _, task := range tasks {
+		daysUntil := int(task.Deadline.Sub(now).Hours() / 24)
+		tasksWithDays = append(tasksWithDays, TaskWithDays{
+			Task:              task,
+			DaysUntilDeadline: daysUntil,
+		})
+	}
+
 	// Renderowanie formularza i tabeli z komunikatem o sukcesie
 	c.HTML(http.StatusOK, "create_task.html", gin.H{
 		"message": fmt.Sprintf("Zadanie dla użytkownika %s zostało pomyślnie utworzone", user.Name),
 		"Users":   users,
-		"Tasks":   tasks,
+		"Tasks":   tasksWithDays,
 	})
 }
 

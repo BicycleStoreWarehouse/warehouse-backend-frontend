@@ -8,12 +8,13 @@ import (
 
 type Task struct {
 	gorm.Model
-	UserID      uint      `gorm:"not null"`          // ID pracownika, któremu przypisano zadanie
-	User        User      `gorm:"foreignKey:UserID"` // Relacja z modelem User
-	Description string    `gorm:"not null"`          // Opis zadania
-	Deadline    time.Time `gorm:"not null"`          // Data realizacji zadania
-	Priority    string    `gorm:"not null"`          // Priorytet zadania (np. 1 = wysoki, 2 = średni, 3 = niski)
-	IsCompleted bool      `gorm:"default:false"`     // Status zadania (false = niewykonane, true = wykonane)
+	UserID            uint      `gorm:"not null"`          // ID pracownika, któremu przypisano zadanie
+	User              User      `gorm:"foreignKey:UserID"` // Relacja z modelem User
+	Description       string    `gorm:"not null"`          // Opis zadania
+	Deadline          time.Time `gorm:"not null"`          // Data realizacji zadania
+	Priority          string    `gorm:"not null"`          // Priorytet zadania (np. 1 = wysoki, 2 = średni, 3 = niski)
+	IsCompleted       bool      `gorm:"default:false"`     // Status zadania (false = niewykonane, true = wykonane)
+	DaysUntilDeadline int       `gorm:"-"`                 // Pole obliczane dynamicznie
 }
 
 // Tworzenie nowego zadania
@@ -54,4 +55,12 @@ func GetUncompletedTasksCountByUserID(db *gorm.DB, userID uint) (int64, error) {
 	var count int64
 	err := db.Model(&Task{}).Where("user_id = ? AND is_completed = ?", userID, false).Count(&count).Error
 	return count, err
+}
+
+func GetOverdueTasksCountByUserID(db *gorm.DB, userID uint) (int, error) {
+	var count int64
+	err := db.Model(&Task{}).
+		Where("user_id = ? AND is_completed = ? AND deadline < ?", userID, false, time.Now()).
+		Count(&count).Error
+	return int(count), err
 }
