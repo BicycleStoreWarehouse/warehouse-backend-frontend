@@ -4,47 +4,224 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HR panel</title>
-    <link rel="stylesheet" href="/styles/style.css">
     <style>
+                /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --danger-color: #e74c3c;
+            --background-color: #f4f7f6;
+            --text-color: #333;
+            --light-background: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            padding: 15px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* Navigation Styles */
+        nav {
+            background-color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        nav ul li {
+            margin: 10px;
+        }
+
+        nav ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        nav ul li a:hover {
+            background-color: var(--accent-color);
+            color: #ffffff;
+        }
+
+        /* Content Section */
+        .content {
+            padding: 20px;
+        }
+
+        /* Submenus */
         .submenu {
             display: none;
+            margin-top: 20px;
+            background-color: var(--light-background);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
         }
+
+        .submenu nav ul li a {
+            padding: 6px 10px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .submenu nav ul li a:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        /* Tab Content */
         .tab-content {
             display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: var(--light-background);
+            border-radius: 8px;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
         }
+
+        .tab-content h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .tab-content p {
+            margin-bottom: 10px;
+        }
+
         .calendar {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
-            gap: 5px;
-            text-align: center;
+            gap: 8px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: var(--light-background);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 700px;
         }
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
+
+        /* Buttons inside Calendar */
         .calendar button {
+            width: 100%;
             padding: 10px;
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
+            background-color: var(--light-background);
+            border: 2px solid var(--secondary-color);
+            border-radius: 5px;
+            font-size: 14px;
+            color: var(--text-color);
             cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
         }
+
+        /* Hover effect on active buttons */
+        .calendar button:hover:not(.disabled) {
+            background-color: var(--accent-color);
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        /* Disabled button */
         .calendar button.disabled {
-            background-color: #f1f1f1;
-            color: #999;
+            background-color: #ddd;
+            color: var(--text-color);
             cursor: not-allowed;
         }
+
+        /* Highlight Today */
         .calendar button.highlight-today {
-            background-color: #d1e7fd;
+            background-color: #ffeb3b;
+            color: var(--primary-color);
             font-weight: bold;
         }
+
+        /* Vacation Days */
         .calendar button.vacation-day {
-            background-color: #f4cccc;
+            background-color: var(--danger-color);
+            color: #ffffff;
+            font-weight: bold;
         }
-        .calendar button.weekend {
-            color: #888;
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
         }
+
+        table thead {
+            background-color: var(--primary-color);
+            color: #ffffff;
+        }
+
+        table th, 
+        table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table tbody tr:hover {
+            background-color: #e6e6e6;
+        }
+
+        /* Buttons */
+        button {
+            padding: 10px 20px;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
     </style>
 </head>
 <body>

@@ -4,201 +4,184 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Szczegóły pracownika</title>
-    <link rel="stylesheet" href="/styles/style.css">
     <style>
-        /* Reset and base styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+                    /* Reset and Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    background-color: #f4f4f4;
-    color: #333;
-    padding: 20px;
-}
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --background-color: #f4f7f6;
+            --text-color: #333;
+            --light-background: #f8f9fa;
+        }
 
-.container {
-    max-width: 800px;
-    margin: 0 auto;
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
 
-/* Header Styles */
-header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #e0e0e0;
-}
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
 
-h1 {
-    color: #2c3e50;
-    font-size: 24px;
-}
+        /* Header Styles */
+        header {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            padding: 15px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-/* Employee Details Styles */
-.employee-details {
-    margin-bottom: 30px;
-}
+        header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
 
-.detail-row {
-    display: flex;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-}
+        /* Navigation Styles */
+        nav {
+            background-color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
 
-.detail-row:hover {
-    background-color: #f0f0f0;
-}
+        nav ul {
+            list-style-type: none;
+            display: flex;
+            justify-content: center;
+        }
 
-.detail-label {
-    font-weight: bold;
-    width: 200px;
-    color: #34495e;
-    margin-right: 20px;
-}
+        nav ul li {
+            margin: 10px;
+        }
 
-.detail-value {
-    flex-grow: 1;
-    color: #2c3e50;
-}
+        nav ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
 
-/* Footer Styles */
-footer {
-    text-align: center;
-    margin-top: 30px;
-    padding-top: 15px;
-    border-top: 2px solid #e0e0e0;
-}
+        nav ul li a:hover {
+            background-color: var(--accent-color);
+            color: #ffffff;
+        }
 
-.btn {
-    display: inline-block;
-    padding: 10px 20px;
-    text-decoration: none;
-    border-radius: 5px;
-    transition: all 0.3s ease;
-}
+        /* Content Section */
+        .content {
+            padding: 20px;
+        }
 
-.btn-secondary {
-    background-color: #3498db;
-    color: #ffffff;
-    border: none;
-}
+        /* Employee Details */
+        .employee-details {
+            margin-bottom: 20px;
+        }
 
-.btn-secondary:hover {
-    background-color: #2980b9;
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
+        .detail-row {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
 
-/* Responsive Design */
-@media screen and (max-width: 600px) {
-    .container {
-        width: 95%;
-        padding: 15px;
-    }
+        .detail-label {
+            font-weight: 600;
+            color: var(--primary-color);
+            width: 150px;
+        }
 
-    .detail-row {
-        flex-direction: column;
-    }
+        .detail-value {
+            color: var(--text-color);
+        }
 
-    .detail-label {
-        margin-bottom: 5px;
-        width: 100%;
-    }
-}
+        /* Orders Section */
+        .orders-section {
+            margin-top: 30px;
+        }
 
-/* Orders Section Styles */
-.orders-section {
-    margin-top: 30px;
-}
+        .orders-section h2 {
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-size: 20px;
+            font-weight: 600;
+        }
 
-.orders-section h2 {
-    text-align: center;
-    color: #2c3e50;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 2px solid #e0e0e0;
-}
+        .order-card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #ffffff;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        }
 
-.order-card {
-    background-color: #f9f9f9;
-    border: 1px solid #e0e0e0;
-    border-radius: 5px;
-    margin-bottom: 20px;
-    padding: 15px;
-}
+        .order-header {
+            display: flex;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
 
-.order-header {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e0e0e0;
-}
+        .order-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-right: 5px;
+        }
 
-.order-label {
-    font-weight: bold;
-    color: #34495e;
-    margin-right: 10px;
-}
+        .order-value {
+            color: var(--text-color);
+            margin-right: 15px;
+        }
 
-.order-value {
-    color: #2c3e50;
-}
+        .order-products {
+            padding-left: 20px;
+        }
 
-.order-products {
-    margin-top: 10px;
-}
+        .order-product {
+            margin-bottom: 10px;
+        }
 
-.order-product {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    margin-bottom: 10px;
-    padding: 5px;
-    background-color: #ffffff;
-    border-radius: 3px;
-}
+        .product-label {
+            font-weight: 600;
+            color: var(--secondary-color);
+            margin-right: 5px;
+        }
 
-.product-label {
-    font-weight: bold;
-    color: #34495e;
-    margin-right: 10px;
-}
+        .product-value {
+            color: var(--text-color);
+        }
 
-.product-value {
-    color: #2c3e50;
-    margin-right: 15px;
-}
+        /* Footer Styles */
+        footer {
+            margin-top: 30px;
+            text-align: center;
+        }
 
-/* Print Styles */
-@media print {
-    body {
-        background-color: #ffffff;
-    }
+        footer a {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: var(--accent-color);
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
 
-    .container {
-        box-shadow: none;
-        border: none;
-    }
+        footer a:hover {
+            background-color: #2980b9;
+        }
 
-    .detail-row, .order-card {
-        background-color: transparent;
-        border: 1px solid #e0e0e0;
-        margin-bottom: 10px;
-    }
-}
     </style>
 </head>
 <body>
