@@ -126,9 +126,7 @@ func DetailWorker(c *gin.Context, db *gorm.DB) {
 	user, _ := models.GetUserByID(db, userIDUint)
 	usersOrders, _ := models.GetUsersOrders(db, userIDUint)
 
-	fmt.Printf("Users orders: %s", usersOrders)
-
-	c.HTML(http.StatusOK, "detail_worker.html", gin.H{"user": user, "usersOrders": usersOrders})
+	c.HTML(http.StatusOK, "detail_worker.html", gin.H{"user": user, "orders": usersOrders})
 }
 
 func UpdateWorkerForm(c *gin.Context, db *gorm.DB) {
