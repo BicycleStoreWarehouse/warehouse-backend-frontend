@@ -29,8 +29,10 @@ func WarehouseMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		if userPosition != "Magazynowy" {
-			c.Redirect(http.StatusFound, "/login")
+		if userPosition == "HR" {
+			c.Redirect(http.StatusFound, "/hr/dashboard")
+		} else if userPosition == "Admin"{
+			c.Redirect(http.StatusFound, "/admin/dashboard")
 		}
 
 		c.Set("user_position", userPosition)
@@ -58,8 +60,10 @@ func HrMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		if userPosition != "HR" {
-			c.Redirect(http.StatusFound, "/login")
+		if userPosition == "Magazynowy" {
+			c.Redirect(http.StatusFound, "/warehouse/dashboard")
+		} else if userPosition == "Admin"{
+			c.Redirect(http.StatusFound, "/admin/dashboard")
 		}
 
 		c.Set("user_position", userPosition)
@@ -87,8 +91,10 @@ func AdminMiddleware(db *gorm.DB) gin.HandlerFunc {
 			return
 		}
 
-		if userPosition != "Admin" {
-			c.Redirect(http.StatusFound, "/login")
+		if userPosition == "HR" {
+			c.Redirect(http.StatusFound, "/hr/dashboard")
+		} else if userPosition == "Magazynowy"{
+			c.Redirect(http.StatusFound, "/warehouse/dashboard")
 		}
 
 		c.Set("user_position", userPosition)
