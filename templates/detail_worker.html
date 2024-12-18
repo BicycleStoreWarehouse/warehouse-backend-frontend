@@ -266,22 +266,6 @@
                             <span class="order-label">Data:</span>
                             <span class="order-value">{{ .CreatedAt.Format "02-01-2006" }}</span>
                         </div>
-                        <div class="order-products">
-                            {{ range .OrderProducts }}
-                                <div class="order-product">
-                                    {{ if .Bicycle }}
-                                        <span class="product-label">Rower:</span>
-                                        <span class="product-value">{{ .Bicycle.Name }}</span>
-                                    {{ end }}
-                                    {{ if .BicyclePart }}
-                                        <span class="product-label">Część rowerowa:</span>
-                                        <span class="product-value">{{ .BicyclePart.Name }}</span>
-                                    {{ end }}
-                                    <span class="product-label">Ilość:</span>
-                                    <span class="product-value">{{ .Quantity }}</span>
-                                </div>
-                            {{ end }}
-                        </div>
                     </div>
                 {{ end }}
             {{ else }}
