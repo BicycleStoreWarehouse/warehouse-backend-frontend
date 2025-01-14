@@ -164,3 +164,28 @@ func GetPositionByName(db * gorm.DB, name string) (Position, error) {
 
 	return position, err
 }
+
+func CountUsersByPosition(db *gorm.DB) (map[string]int64, error) {
+    var users []User
+
+    if err := db.Preload("Position").Find(&users).Error; err != nil {
+        return nil, err
+    }
+
+    var workerCount int64
+    var hrCount int64
+
+    for _, user := range users {
+        switch user.Position.Name {
+        case "Magazynowy":
+            workerCount++
+        case "HR":
+            hrCount++
+        }
+    }
+
+    return map[string]int64{
+        "Magazynowy": workerCount,
+        "HR": hrCount,
+    }, nil
+}

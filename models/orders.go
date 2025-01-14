@@ -65,3 +65,13 @@ func GetUsersOrders(db *gorm.DB, userID uint) ([]OrderProduct, error) {
 
 	return orders, nil
 }
+
+func CountOrders(db *gorm.DB) (int64, error) {
+    var orderCount int64
+
+    if err := db.Model(&Order{}).Count(&orderCount).Error; err != nil {
+        return 0, err
+    }
+
+    return orderCount, nil
+}

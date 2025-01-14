@@ -64,3 +64,13 @@ func GetOverdueTasksCountByUserID(db *gorm.DB, userID uint) (int, error) {
 		Count(&count).Error
 	return int(count), err
 }
+
+func CountIncompleteTasks(db *gorm.DB) (int64, error) {
+    var incompleteTaskCount int64
+
+    if err := db.Model(&Task{}).Where("is_completed = ?", false).Count(&incompleteTaskCount).Error; err != nil {
+        return 0, err
+    }
+
+    return incompleteTaskCount, nil
+}

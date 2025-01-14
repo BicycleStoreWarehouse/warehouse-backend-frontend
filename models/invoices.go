@@ -93,3 +93,23 @@ func GetPendingInvoices(db *gorm.DB) ([]SalesInvoice, []PurchaseInvoice, error) 
 	return sales_invoices, purchase_invoices, nil
 
 }
+
+func CountUnpaidInvoices(db *gorm.DB) (map[string]int64, error) {
+    metrics := make(map[string]int64)
+    
+    // Zmienna tymczasowa dla purchase invoices
+    var unpaidPurchase int64
+    if err := db.Model(&PurchaseInvoice{}).Where("status_id = ?", 1).Count(&unpaidPurchase).Error; err != nil {
+        return nil, err
+    }
+    metrics["UnpaidPurchaseInvoices"] = unpaidPurchase
+
+    // Zmienna tymczasowa dla sales invoices
+    var unpaidSales int64
+    if err := db.Model(&SalesInvoice{}).Where("status_id = ?", 1).Count(&unpaidSales).Error; err != nil {
+        return nil, err
+    }
+    metrics["UnpaidSalesInvoices"] = unpaidSales
+
+    return metrics, nil
+}
