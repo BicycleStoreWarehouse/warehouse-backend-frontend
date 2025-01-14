@@ -5,6 +5,197 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Warehouse</title>
     <link rel="stylesheet" href="/styles/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+                /* Reset and Base Styles */
+                * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --background-color: #f4f7f6;
+            --text-color: #333;
+            --light-background: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--primary-color);
+            color: #ffffff;
+            padding: 15px 20px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        /* Navigation Styles */
+        nav {
+            background-color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        nav ul li {
+            margin: 10px;
+        }
+
+        nav ul li a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+            display: inline-block;
+        }
+
+        nav ul li a:hover {
+            background-color: var(--accent-color);
+            color: #ffffff;
+        }
+
+        /* Content Section */
+        .content {
+            padding: 20px;
+        }
+
+        .content h2 {
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        /* Table Styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        table thead {
+            background-color: var(--primary-color);
+            color: #ffffff;
+        }
+
+        table th,
+        table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        table tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        table tbody tr:hover {
+            background-color: #e6e6e6;
+        }
+
+        /* Utility Styles */
+        strong {
+            color: var(--secondary-color);
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 10px;
+                width: 95%;
+            }
+
+            header {
+                text-align: center;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            nav ul li {
+                margin: 5px 0;
+                width: 100%;
+                text-align: center;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            table th,
+            table td {
+                padding: 8px;
+            }
+        }
+
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .chart-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+
 </head>
 <body>
     <div class="container">
@@ -23,6 +214,84 @@
         </nav>
 
         <section class="content">
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <h3>Pracownicy</h3>
+                    <div class="stat-number">6</div>
+                    <p>Aktywni pracownicy</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Kadra HR</h3>
+                    <div class="stat-number">{{.hr_count}}</div>
+                    <p>Pracownicy HR</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Zadania</h3>
+                    <div class="stat-number">{{.incomplete_tasks}}</div>
+                    <p>Nieukończone zadania</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Zamówienia</h3>
+                    <div class="stat-number">{{.orders_count}}</div>
+                    <p>Łączna liczba zamówień</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Urlopy</h3>
+                    <div class="stat-number">3</div>
+                    <p>Osoby na urlopie</p>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-card">
+                    <h3>Faktury do zapłaty</h3>
+                    <canvas id="invoicesChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Struktura pracowników</h3>
+                    <canvas id="employeesChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Wykres faktur
+        new Chart(document.getElementById('invoicesChart'), {
+            type: 'bar',
+            data: {
+                labels: ['Faktury zakupowe', 'Faktury sprzedażowe'],
+                datasets: [{
+                    label: 'Niezapłacone faktury',
+                    data: [3, {{.unpaid_sales_invoices}}],
+                    backgroundColor: ['#3498db', '#e74c3c']
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Wykres pracowników
+        new Chart(document.getElementById('employeesChart'), {
+            type: 'pie',
+            data: {
+                labels: ['Pracownicy', 'HR'],
+                datasets: [{
+                    data: [6, {{.hr_count}}],
+                    backgroundColor: ['#2ecc71', '#9b59b6']
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+    </script>
             <p>Witaj w panelu administracyjnym magazynu. Jesteś zalogowany jako: <strong>{{.user_name}}</strong></p>
         </section>
     </div> 
