@@ -66,4 +66,24 @@ func AdminDashboard(c *gin.Context, db *gorm.DB) {
         "unpaid_purchase_invoices": unpaidInvoices["UnpaidPurchaseInvoices"],
         "unpaid_sales_invoices":    unpaidInvoices["UnpaidSalesInvoices"],
     })
+
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"message": "Musisz być zalogowany",
+		})
+		return
+	}
+
+	user, err := models.GetUserByID(db, userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusUnauthorized, "admin_dashboard.html", gin.H{
+			"message": "Coś poszło nie tak",
+		})
+		return
+	}
+
+	c.HTML(http.StatusOK, "admin_dashboard.html", gin.H{
+		"user_name": user.Name,
+	})
 }

@@ -75,3 +75,4 @@ func CountOrders(db *gorm.DB) (int64, error) {
 
     return orderCount, nil
 }
+

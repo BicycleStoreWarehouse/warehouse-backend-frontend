@@ -82,6 +82,40 @@ func GetUserByID(db *gorm.DB, id uint) (User, error) {
 		}
 		return User{}, err
 	}
+
+	result := db.Create(&user)
+
+	return user, result.Error
+}
+
+func CreatePosition(db *gorm.DB, name string) (Position, error) {
+	position := Position{
+		Name: name,
+	}
+
+	result := db.Create(&position)
+
+	return position, result.Error
+}
+
+func GetUserByEmail(db *gorm.DB, email string) (User, error) {
+	var user User
+	err := db.Where("email = ?", email).First(&user).Error
+	if err != nil {
+		return user, err
+	}
+	return user, nil
+}
+
+func GetUserByID(db *gorm.DB, id uint) (User, error) {
+	var user User
+	err := db.Preload("Position").Where("id = ?", id).First(&user).Order("id DESC").Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return User{}, gorm.ErrRecordNotFound
+		}
+		return User{}, err
+	}
 	return user, nil
 }
 
@@ -189,3 +223,4 @@ func CountUsersByPosition(db *gorm.DB) (map[string]int64, error) {
         "HR": hrCount,
     }, nil
 }
+
