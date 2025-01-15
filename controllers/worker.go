@@ -30,6 +30,25 @@ func WorkerDashboard(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
+	// Pobierz liczbę urlopów dla użytkownika
+	vacationCount, err := models.GetVacationCountByUserID(db, userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "dashboard_warehouse.html", gin.H{
+			"message": "Coś poszło nie tak podczas sprawdzania urlopów",
+		})
+		return
+	}
+
+	// Przygotowanie odpowiedniego komunikatu do szablonu
+	var vacationMessage string
+	if vacationCount == 1 {
+		vacationMessage = "Masz 1 urlop do odczytania!"
+	} else if vacationCount > 1 && vacationCount <= 4 {
+		vacationMessage = fmt.Sprintf("Masz %d urlopy do odczytania!", vacationCount)
+	} else {
+		vacationMessage = fmt.Sprintf("Masz %d urlopów do odczytania!", vacationCount)
+	}
+
 	// Pobierz liczbę niewykonanych zadań dla użytkownika
 	taskCount, err := models.GetUncompletedTasksCountByUserID(db, userID.(uint))
 	if err != nil {
@@ -69,13 +88,16 @@ func WorkerDashboard(c *gin.Context, db *gorm.DB) {
 	}
 
 	c.HTML(http.StatusOK, "dashboard_warehouse.html", gin.H{
-		"user_name":         user.Name,
-		"task_count":        taskCount,
-		"task_message":      taskMessage,
-		"overdue_count":     overdueCount,
-		"overdue_message":   overdueMessage,
-		"has_new_tasks":     taskCount > 0,
-		"has_overdue_tasks": overdueCount > 0,
+		"user_name":          user.Name,
+		"task_count":         taskCount,
+		"task_message":       taskMessage,
+		"overdue_count":      overdueCount,
+		"overdue_message":    overdueMessage,
+		"has_new_tasks":      taskCount > 0,
+		"has_overdue_tasks":  overdueCount > 0,
+		"vacation_count":     vacationCount,
+		"vacation_message":   vacationMessage,
+		"has_vacation_tasks": vacationCount > 0,
 	})
 }
 
@@ -406,5 +428,47 @@ func CompleteTask(c *gin.Context, db *gorm.DB) {
 	// Przekazanie zadań do widoku
 	c.HTML(http.StatusOK, "worker_task.html", gin.H{
 		"Tasks": tasks,
+	})
+}
+
+func ReadVacation(c *gin.Context, db *gorm.DB) {
+	// Pobierz vacationID z formularza
+	vacationIDStr := c.PostForm("vacation_id")
+	vacationID, err := strconv.Atoi(vacationIDStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Niepoprawny identyfikator urlopu"})
+		return
+	}
+
+	// Sprawdzenie czy użytkownik jest zalogowany
+	userID, exists := c.Get("user_id")
+	if !exists {
+		c.HTML(http.StatusUnauthorized, "login.html", gin.H{
+			"message": "Musisz być zalogowany",
+		})
+		return
+	}
+
+	// Oznaczenie urlopu jako odczytanego
+	err = models.MarkVacationAsRead(db, uint(vacationID), userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "dashboard_worker.html", gin.H{
+			"error": "Nie udało się oznaczyć urlopu jako odczytanego",
+		})
+		return
+	}
+
+	// Pobierz zaktualizowaną listę urlopów użytkownika
+	vacations, err := models.GetVacationsByUserID(db, userID.(uint))
+	if err != nil {
+		c.HTML(http.StatusInternalServerError, "dashboard_worker.html", gin.H{
+			"error": "Nie udało się pobrać danych o urlopach",
+		})
+		return
+	}
+
+	// Przekazanie urlopów do widoku
+	c.HTML(http.StatusOK, "dashboard_worker.html", gin.H{
+		"vacations": vacations,
 	})
 }

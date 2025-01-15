@@ -82,40 +82,6 @@ func GetUserByID(db *gorm.DB, id uint) (User, error) {
 		}
 		return User{}, err
 	}
-
-	result := db.Create(&user)
-
-	return user, result.Error
-}
-
-func CreatePosition(db *gorm.DB, name string) (Position, error) {
-	position := Position{
-		Name: name,
-	}
-
-	result := db.Create(&position)
-
-	return position, result.Error
-}
-
-func GetUserByEmail(db *gorm.DB, email string) (User, error) {
-	var user User
-	err := db.Where("email = ?", email).First(&user).Error
-	if err != nil {
-		return user, err
-	}
-	return user, nil
-}
-
-func GetUserByID(db *gorm.DB, id uint) (User, error) {
-	var user User
-	err := db.Preload("Position").Where("id = ?", id).First(&user).Order("id DESC").Error
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return User{}, gorm.ErrRecordNotFound
-		}
-		return User{}, err
-	}
 	return user, nil
 }
 
@@ -138,8 +104,8 @@ func GetAllWorkers(db *gorm.DB) ([]User, error) {
 	var users []User
 
 	err := db.Joins("JOIN positions ON users.position_id = positions.id").
-			Where("positions.name = ?", "Magazynowy").
-			Find(&users).Error
+		Where("positions.name = ?", "Magazynowy").
+		Find(&users).Error
 
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -184,7 +150,7 @@ func GetUsersPassword(db *gorm.DB, email string) (password string, error error) 
 	return user.Password, nil
 }
 
-func GetPositionByName(db * gorm.DB, name string) (Position, error) {
+func GetPositionByName(db *gorm.DB, name string) (Position, error) {
 	var position Position
 
 	err := db.Where("name = ?", name).First(&position).Error
@@ -200,27 +166,26 @@ func GetPositionByName(db * gorm.DB, name string) (Position, error) {
 }
 
 func CountUsersByPosition(db *gorm.DB) (map[string]int64, error) {
-    var users []User
+	var users []User
 
-    if err := db.Preload("Position").Find(&users).Error; err != nil {
-        return nil, err
-    }
+	if err := db.Preload("Position").Find(&users).Error; err != nil {
+		return nil, err
+	}
 
-    var workerCount int64
-    var hrCount int64
+	var workerCount int64
+	var hrCount int64
 
-    for _, user := range users {
-        switch user.Position.Name {
-        case "Magazynowy":
-            workerCount++
-        case "HR":
-            hrCount++
-        }
-    }
+	for _, user := range users {
+		switch user.Position.Name {
+		case "Magazynowy":
+			workerCount++
+		case "HR":
+			hrCount++
+		}
+	}
 
-    return map[string]int64{
-        "Magazynowy": workerCount,
-        "HR": hrCount,
-    }, nil
+	return map[string]int64{
+		"Magazynowy": workerCount,
+		"HR":         hrCount,
+	}, nil
 }
-

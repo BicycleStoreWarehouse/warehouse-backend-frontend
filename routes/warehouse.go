@@ -36,6 +36,10 @@ func WarehouseRoutes(r *gin.RouterGroup, db *gorm.DB) {
 		controllers.SaveVacation(c, db)
 	})
 
+	r.POST("/read-vacation", func(c *gin.Context) {
+		controllers.ReadVacation(c, db)
+	})
+
 	r.GET("/time-summary", func(c *gin.Context) {
 		controllers.TimeTracking(c, db)
 	})

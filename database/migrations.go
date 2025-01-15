@@ -126,7 +126,7 @@ func LoadExampleData(db *gorm.DB) {
 	models.CreateWorkingHoursMonthly(db, worker_1.ID, "2024-11", "160")
 
 	models.CreateVacation(db, worker_1.ID, "2024-11-19", "2024-11-26", 7, "Wysłany")
-	models.CreateVacation(db, worker_2.ID, "2024-11-19", "2024-11-26", 7, "Zatwierdzony")
+	models.CreateVacation(db, worker_2.ID, "2024-11-19", "2024-11-26", 7, "Zaakceptowany")
 
 	models.CreateTask(db, worker_1.ID, "Przenieść regał NARZĘDZIA na dział WARSZTAT", time.Now(), "Niski")
 	models.CreateTask(db, worker_2.ID, "Ustawić wszystkie Eruo palety na miejsce do wywozu", time.Time{}, "Niski")

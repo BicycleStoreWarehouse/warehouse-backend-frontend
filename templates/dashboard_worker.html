@@ -303,6 +303,7 @@
                             <th>Liczba dni</th>
                             <th>Status</th>
                             <th>Powód odrzucenia</th>
+                            <th>Status 2</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -313,8 +314,23 @@
                             <td>{{.date_count}}</td>
                             <td>{{.status}}</td>
                             <td>{{.reason}}</td>
+                            <td>{{if .read}}
+                                Odczytane
+                                {{else if eq .status "Wysłany"}}
+                                W trakcie
+                                {{else}}
+                                Nieodczytane
+                                {{end}}</td>
+                            <td>
+                                {{if eq .status "Zaakceptowany"}}
+                                <form method="POST" action="/warehouse/read-vacation">
+                                    <input type="hidden" name="vacation_id" value="{{.Vacation.id}}" />
+                                    <button type="submit" class="btn btn-primary btn-sm">Odczytane</button>
+                                </form>
+                                {{ end }}
+                            </td>
                         </tr>
-                        {{end}}
+                        {{ end }}
                     </tbody>
                 </table>
             </div>

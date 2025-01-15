@@ -188,37 +188,38 @@
             <h1>Witaj {{.user_name}}</h1>
         </header>
 
-         <!-- Tło dla modala -->
-    <div id="modalBackdrop"></div>
+<!-- Tło dla modala -->
+<div id="modalBackdrop"></div>
 
-    <!-- Modal -->
-{{ if or .has_overdue_tasks .has_new_tasks }}
+<!-- Modal -->
+<!-- {{ if or .has_overdue_tasks .has_new_tasks .has_vacation_tasks }}
 <div id="taskModal">
     {{ if .has_overdue_tasks }}
         <p style="color: red;">{{ .overdue_message }}</p>
     {{ end }}
     {{ if .has_new_tasks }}
         <p>{{ .task_message }}</p>
-    {{ else }}
-        {{ if not .has_overdue_tasks }}
-            <p>Nie masz żadnych nowych zadań.</p>
-        {{ end }}
+    {{ end }}
+    {{ if .has_vacation_tasks }}
+        <p>{{ .vacation_message }}</p>
     {{ end }}
     <button class="btn" id="closeModal">OK</button>
 </div>
-{{ end }}
+{{ end }} -->
 
 <!-- Wyświetlanie komunikatu o nowych zadaniach -->
-{{ if .has_overdue_tasks }}
+<!-- {{ if .has_overdue_tasks }}
 <p style="color: red;">{{ .overdue_message }}</p>
 {{ end }}
 {{ if .has_new_tasks }}
 <p>{{ .task_message }}</p>
-{{ else }}
+{{ end }}
+{{ if .has_vacation_tasks }}
+<p>{{ .vacation_message }}</p>
+{{ end }}
     {{ if not .has_overdue_tasks }}
         <p>Nie masz żadnych nowych zadań.</p>
-    {{ end }}
-{{ end }}
+    {{ end }} -->
 
         <nav>
             <ul>
@@ -245,117 +246,196 @@
     </div>
 
     <script>
-        let workingTimer, breakTimer;
-        let workingTime = 0;
-        let breakTime = 1800;
-        let isWorking = false;
-        let isOnBreak = false;
-        let startTime = null;  
-        let endTime = null;
+let workingTimer, breakTimer;
+let workingTime = parseInt(localStorage.getItem('workingTime')) || 0;  // Wczytanie zapisanych wartości
+let breakTime = parseInt(localStorage.getItem('breakTime')) || 1800;
+let isWorking = localStorage.getItem('isWorking') === 'true';  // Czy timer pracy był aktywowany
+let isOnBreak = localStorage.getItem('isOnBreak') === 'true';  // Czy przerwa była aktywna
+let startTime = null;
+let endTime = null;
 
-        function formatTime(seconds) {
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const sec = seconds % 60;
-            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-        }
-    
-        function updateDisplay() {
-            document.getElementById('working-time-display').textContent = formatTime(workingTime);
-            document.getElementById('break-time-display').textContent = formatTime(breakTime);
-        }
-    
-        function startWork() {
-            if (isOnBreak) {
-                clearInterval(breakTimer);
-                isOnBreak = false;
-            }
-    
-            if (!isWorking) {
-                startTime = new Date();
-                workingTimer = setInterval(() => {
-                    workingTime++;
-                    updateDisplay();
-                }, 1000);
-                document.getElementById('start-btn').textContent = 'Pauza';
-                isWorking = true;
-            } else {
-                clearInterval(workingTimer);
-                document.getElementById('start-btn').textContent = 'Start';
-                isWorking = false;
-            }
-        }
-    
-        function startBreak() {
-            if (isWorking) {
-                clearInterval(workingTimer);
-                isWorking = false;
-                document.getElementById('start-btn').textContent = 'Start';
-            }
-    
-            if (!isOnBreak) {
-                breakTimer = setInterval(() => {
-                    if (breakTime > 0) {
-                        breakTime--;
-                        updateDisplay();
-                    } else {
-                        clearInterval(breakTimer);
-                        alert('Czas przerwy dobiegł końca!');
-                    }
-                }, 1000);
-                isOnBreak = true;
-            } else {
-                clearInterval(breakTimer);
-                isOnBreak = false;
-            }
-        }
-    
-        function confirmStop() {
-            const confirmEnd = confirm('Czy na pewno chcesz zakończyć pracę?');
-            if (confirmEnd) {
-                stopWork();
-            }
-        }
-    
-        function stopWork() {
-            endTime = new Date();  // Zapamiętaj godzinę zakończenia pracy
-            clearInterval(workingTimer);
-            clearInterval(breakTimer);
-    
-            // Zapisz czas pracy i przerwy do bazy danych przez backend
-            fetch('/warehouse/save-time', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    worked_hours: workingTime,
-                    break_time: 1800 - breakTime,
-                    })
-            }).then(response => response.json())
-            .then(data => {
-                console.log('Czas zapisany:', data);
-            });
-    
-            // Reset czasów i wyświetlaczy
-            workingTime = 0;
-            breakTime = 1800;
+function formatTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const sec = seconds % 60;
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+}
+
+function updateDisplay() {
+    document.getElementById('working-time-display').textContent = formatTime(workingTime);
+    document.getElementById('break-time-display').textContent = formatTime(breakTime);
+}
+
+// Funkcja startująca pracę
+function startWork() {
+    if (isOnBreak) {
+        clearInterval(breakTimer);
+        isOnBreak = false;
+    }
+
+    if (!isWorking) {
+        startTime = new Date();
+        workingTimer = setInterval(() => {
+            workingTime++;
+            localStorage.setItem('workingTime', workingTime);  // Zapisz czas pracy
             updateDisplay();
-            document.getElementById('start-btn').textContent = 'Start';
-            document.getElementById('break-btn').disabled = false;
+        }, 1000);
+        localStorage.setItem('isWorking', 'true');  // Zapisz stan
+        document.getElementById('start-btn').textContent = 'Pauza';
+        isWorking = true;
+    } else {
+        clearInterval(workingTimer);
+        localStorage.setItem('isWorking', 'false');  // Zapisz stan
+        document.getElementById('start-btn').textContent = 'Start';
+        isWorking = false;
+    }
+}
+
+// Funkcja startująca przerwę
+function startBreak() {
+    if (isWorking) {
+        clearInterval(workingTimer);
+        isWorking = false;
+        document.getElementById('start-btn').textContent = 'Start';
+    }
+
+    if (!isOnBreak) {
+        breakTimer = setInterval(() => {
+            if (breakTime > 0) {
+                breakTime--;
+                localStorage.setItem('breakTime', breakTime);  // Zapisz czas przerwy
+                updateDisplay();
+            } else {
+                clearInterval(breakTimer);
+                alert('Czas przerwy dobiegł końca!');
+            }
+        }, 1000);
+        localStorage.setItem('isOnBreak', 'true');  // Zapisz stan przerwy
+        isOnBreak = true;
+    } else {
+        clearInterval(breakTimer);
+        localStorage.setItem('isOnBreak', 'false');  // Zapisz stan przerwy
+        isOnBreak = false;
+    }
+}
+
+// Funkcja do potwierdzenia zakończenia pracy
+function confirmStop() {
+    const confirmEnd = confirm('Czy na pewno chcesz zakończyć pracę?');
+    if (confirmEnd) {
+        stopWork();
+    }
+}
+
+// Funkcja kończąca pracę
+function stopWork() {
+    endTime = new Date();  // Zapamiętaj godzinę zakończenia pracy
+    clearInterval(workingTimer);
+    clearInterval(breakTimer);
+
+    // Zapisz czas pracy i przerwy do bazy danych przez backend
+    fetch('/warehouse/save-time', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            worked_hours: workingTime,
+            break_time: 1800 - breakTime,
+        })
+    }).then(response => response.json())
+    .then(data => {
+        console.log('Czas zapisany:', data);
+    });
+
+    // Reset czasów i wyświetlaczy
+    workingTime = 0;
+    breakTime = 1800;
+    localStorage.removeItem('workingTime'); // Usunięcie zapisanych danych po zakończeniu
+    localStorage.removeItem('breakTime');
+    localStorage.removeItem('isWorking');
+    localStorage.removeItem('isOnBreak');
+    updateDisplay();
+    document.getElementById('start-btn').textContent = 'Start';
+    document.getElementById('break-btn').disabled = false;
+}
+
+// Wywołanie funkcji do początkowego ustawienia czasów
+updateDisplay();
+
+// Jeśli praca była w trakcie rozpoczęta, wznowienie licznika
+if (isWorking) {
+    workingTimer = setInterval(() => {
+        workingTime++;
+        localStorage.setItem('workingTime', workingTime);  // Zapisz czas pracy
+        updateDisplay();
+    }, 1000);
+}
+
+// Jeśli przerwa była aktywna, wznowienie licznika przerwy
+if (isOnBreak) {
+    breakTimer = setInterval(() => {
+        if (breakTime > 0) {
+            breakTime--;
+            localStorage.setItem('breakTime', breakTime);  // Zapisz czas przerwy
+            updateDisplay();
+        } else {
+            clearInterval(breakTimer);
+            alert('Czas przerwy dobiegł końca!');
         }
+    }, 1000);
+}
 
-        // Jeśli użytkownik ma nowe zadania, pokazujemy modal
-        {'{ if .has_new_tasks }'}
-            document.getElementById('taskModal').style.display = 'block';
-            document.getElementById('modalBackdrop').style.display = 'block';
-        {'{ end }'}
+// Wywołanie funkcji do początkowego ustawienia czasów
+updateDisplay();
 
-        // Funkcja do zamknięcia modala po kliknięciu przycisku OK
-        document.getElementById('closeModal').addEventListener('click', function() {
-            document.getElementById('taskModal').style.display = 'none';
-            document.getElementById('modalBackdrop').style.display = 'none';
-        });
+    //     // Jeśli użytkownik ma nowe zadania, pokazujemy modal
+    //     {'{ if .has_new_tasks }'}
+    //         document.getElementById('taskModal').style.display = 'block';
+    //         document.getElementById('modalBackdrop').style.display = 'block';
+    //     {'{ end }'}
+
+    //     // Funkcja do zamknięcia modala po kliknięciu przycisku OK
+    //     document.getElementById('closeModal').addEventListener('click', function() {
+    //         document.getElementById('taskModal').style.display = 'none';
+    //         document.getElementById('modalBackdrop').style.display = 'none';
+    //     });
+
+    // Jeśli użytkownik ma nowe zadania, pokazujemy modal
+{'{ if .has_new_tasks }'}
+    document.getElementById('taskModal').style.display = 'block';
+    document.getElementById('modalBackdrop').style.display = 'block';
+{'{ end }'}
+
+// Jeśli użytkownik ma urlop oczekujący, pokazujemy modal
+{'{ if .has_vacation_tasks }'}
+    document.getElementById('taskModal').style.display = 'block';
+    document.getElementById('modalBackdrop').style.display = 'block';
+{'{ end }'}
+
+// Funkcja do zamknięcia modala po kliknięciu przycisku OK
+document.getElementById('closeModal').addEventListener('click', function() {
+    // Zamknięcie modala
+    document.getElementById('taskModal').style.display = 'none';
+    document.getElementById('modalBackdrop').style.display = 'none';
+
+    // Wysłanie zapytania AJAX, aby oznaczyć powiadomienie o urlopie jako przeczytane
+    fetch('/MarkVacationAsRead', {
+        method: 'POST',
+        body: JSON.stringify({
+            vacation_id: YOUR_VACATION_ID,  // Zastąp przez właściwe ID urlopu
+        }),
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Vacation marked as read');
+    })
+    .catch(error => console.error('Error:', error));
+});
+
     </script>    
 </body>
 </html>

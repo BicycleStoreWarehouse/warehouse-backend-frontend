@@ -13,6 +13,7 @@ type Vacation struct {
 	DateCount       int    `gorm:"not null"`
 	Status          string `gorm:"default:'Wysłany'"`
 	RejectionReason string `gorm:"default:null"`
+	Read            bool   `gorm:"default:false"`
 }
 
 func CreateVacation(db *gorm.DB, userID uint, dateFrom, dateTo string, dateCount int, status string) (Vacation, error) {
@@ -22,10 +23,14 @@ func CreateVacation(db *gorm.DB, userID uint, dateFrom, dateTo string, dateCount
 		DateTo:    dateTo,
 		DateCount: dateCount,
 		Status:    status,
+		Read:      false,
 	}
 
 	result := db.Create(&vacation)
 	return vacation, result.Error
+}
+func MarkVacationAsRead(db *gorm.DB, vacationID uint, UserID uint) error {
+	return db.Model(&Vacation{}).Where("id = ?", vacationID).Update("read", true).Error
 }
 
 func GetVacationByID(db *gorm.DB, id uint) (Vacation, error) {
@@ -91,4 +96,11 @@ func UpdateVacationStatus(db *gorm.DB, id uint, status string, rejectionReason *
 		updateData["rejection_reason"] = *rejectionReason
 	}
 	return db.Model(&Vacation{}).Where("id = ?", id).Updates(updateData).Error
+}
+
+// Pobieranie liczby niewykonanych zadań dla użytkownika
+func GetVacationCountByUserID(db *gorm.DB, userID uint) (int64, error) {
+	var count int64
+	err := db.Model(&Vacation{}).Where("user_id = ? AND read = ?", userID, false).Count(&count).Error
+	return count, err
 }
