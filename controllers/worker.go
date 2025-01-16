@@ -119,9 +119,10 @@ func DashboardWorker(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// Sprawdzenie czy użytkownik chce oznaczyć urlop jako odczytany
+	// Sprawdzenie, czy użytkownik chce zmienić status urlopu
 	vacationIDStr := c.DefaultPostForm("vacation_id", "")
-	if vacationIDStr != "" {
+	read := c.DefaultPostForm("read", "")
+	if vacationIDStr != "" && read == "Odczytany" {
 		// Konwersja vacationID na typ uint
 		vacationID, err := strconv.Atoi(vacationIDStr)
 		if err != nil {
@@ -129,64 +130,21 @@ func DashboardWorker(c *gin.Context, db *gorm.DB) {
 			return
 		}
 
-		// Oznaczenie urlopu jako odczytanego
-		err = models.MarkVacationAsRead(db, uint(vacationID), userID.(uint))
+		// Aktualizacja statusu urlopu
+		err = models.UpdateVacationStatus(db, uint(vacationID), "Nieodczytane", nil)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Nie udało się oznaczyć urlopu jako odczytanego",
+				"error": "Nie udało się zaktualizować statusu urlopu",
 			})
 			return
 		}
-
-		// Pobierz zaktualizowaną listę urlopów użytkownika
-		vacations, err := models.GetVacationsByUserID(db, userID.(uint))
-		if err != nil {
-			c.HTML(http.StatusInternalServerError, "dashboard_worker.html", gin.H{
-				"error": "Nie udało się pobrać danych o urlopach",
-			})
-			return
-		}
-
-		// Przygotowanie danych o urlopach do wyświetlenia
-		vacationData := []gin.H{}
-		for _, vacation := range vacations {
-			vacationData = append(vacationData, gin.H{
-				"id":         vacation.ID,
-				"date_from":  vacation.DateFrom,
-				"date_to":    vacation.DateTo,
-				"date_count": vacation.DateCount,
-				"status":     vacation.Status,
-				"reason":     vacation.RejectionReason,
-				"read":       vacation.Read,
-			})
-		}
-
-		// Renderowanie szablonu z zaktualizowaną listą urlopów
-		c.HTML(http.StatusOK, "dashboard_worker.html", gin.H{
-			"user_name":        user.Name,
-			"user_surname":     user.Surname,
-			"user_email":       user.Email,
-			"user_phone":       user.Phone,
-			"user_street":      user.Street,
-			"user_city":        user.City,
-			"user_state":       user.State,
-			"user_zip":         user.Zip,
-			"user_country":     user.Country,
-			"user_bankAccount": user.BankAccount,
-			"user_nameBank":    user.NameBank,
-			"user_position":    user.Position.Name,
-			"user_location":    user.City,
-			"vacations":        vacationData,
-		})
-
-		return
 	}
 
 	// Pobierz urlopy użytkownika
 	vacations, err := models.GetVacationsByUserID(db, userID.(uint))
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "dashboard_worker.html", gin.H{
-			"message": "Nie udało się pobrać danych o wakacjach",
+			"message": "Nie udało się pobrać danych o urlopach",
 		})
 		return
 	}
@@ -519,9 +477,9 @@ func CompleteTask(c *gin.Context, db *gorm.DB) {
 // 	}
 
 // 	// Oznaczenie urlopu jako odczytanego
-// 	err = models.MarkVacationAsRead(db, uint(vacationID), userID.(uint))
+// 	err = models.MarkVacationAsRead(db, uint(vacationID))
 // 	if err != nil {
-// 		c.HTML(http.StatusInternalServerError, "dashboard_worker.html", gin.H{
+// 		c.JSON(http.StatusInternalServerError, gin.H{
 // 			"error": "Nie udało się oznaczyć urlopu jako odczytanego",
 // 		})
 // 		return

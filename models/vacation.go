@@ -13,7 +13,7 @@ type Vacation struct {
 	DateCount       int    `gorm:"not null"`
 	Status          string `gorm:"default:'Wysłany'"`
 	RejectionReason string `gorm:"default:null"`
-	Read            bool   `gorm:"default:false"`
+	Read            string `gorm:"default:'Nieodczytane'"` // 'Nieodczytane', 'Odczytane', lub null
 }
 
 func CreateVacation(db *gorm.DB, userID uint, dateFrom, dateTo string, dateCount int, status string) (Vacation, error) {
@@ -23,14 +23,15 @@ func CreateVacation(db *gorm.DB, userID uint, dateFrom, dateTo string, dateCount
 		DateTo:    dateTo,
 		DateCount: dateCount,
 		Status:    status,
-		Read:      false,
+		Read:      "Nieodczytane", // Puste podczas tworzenia nowego urlopu
 	}
 
 	result := db.Create(&vacation)
 	return vacation, result.Error
 }
-func MarkVacationAsRead(db *gorm.DB, vacationID uint, UserID uint) error {
-	return db.Model(&Vacation{}).Where("id = ?", vacationID).Update("read", true).Error
+
+func MarkVacationAsRead(db *gorm.DB, vacationID uint) error {
+	return db.Model(&Vacation{}).Where("id = ?", vacationID).Update("read", "Odczytane").Error
 }
 
 func GetVacationByID(db *gorm.DB, id uint) (Vacation, error) {
@@ -91,7 +92,10 @@ func DeleteVacation(db *gorm.DB, id uint) error {
 }
 
 func UpdateVacationStatus(db *gorm.DB, id uint, status string, rejectionReason *string) error {
-	updateData := map[string]interface{}{"status": status}
+	updateData := map[string]interface{}{
+		"status": status,
+		"read":   "Nieodczytane", // Automatycznie ustaw na "Nieodczytane" przy zmianie statusu
+	}
 	if rejectionReason != nil {
 		updateData["rejection_reason"] = *rejectionReason
 	}
@@ -101,6 +105,6 @@ func UpdateVacationStatus(db *gorm.DB, id uint, status string, rejectionReason *
 // Pobieranie liczby niewykonanych zadań dla użytkownika
 func GetVacationCountByUserID(db *gorm.DB, userID uint) (int64, error) {
 	var count int64
-	err := db.Model(&Vacation{}).Where("user_id = ? AND read = ? AND status = ? OR status =?", userID, false, "Zaakceptowany", "Odrzucony").Count(&count).Error
+	err := db.Model(&Vacation{}).Where("user_id = ? AND read = ?", userID, "Nieodczytane").Count(&count).Error
 	return count, err
 }

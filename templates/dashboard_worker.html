@@ -309,29 +309,21 @@
                     </thead>
                     <tbody>
                         {{range .vacations}}
-                        <tr>
+                        <tr id="vacation-{{.id}}">
                             <td>{{.id}}</td>
                             <td>{{.date_from}}</td>
                             <td>{{.date_to}}</td>
                             <td>{{.date_count}}</td>
                             <td>{{.status}}</td>
                             <td>{{.reason}}</td>
-                            <td>{{if .read}}
-                                Odczytane
-                                {{else if eq .status "Wysłany"}}
-                                W trakcie
-                                {{else}}
-                                Nieodczytane
-                                {{end}}
-                                {{if and (or (eq .status "Zaakceptowany") (eq .status "Odrzucony")) (not .read)}}
-                                <form method="POST">
-                                    <input type="hidden" name="vacation_id" value="{{.ID}}" />
-                                    <button type="submit" name="read" value="Odczytane">Odczytane</button>
-                                </form>
+                            <td>
+                                <span class="status">{{if eq .read "Odczytane"}}Odczytane{{else}}Nieodczytane{{end}}</span>
+                                {{if and (or (eq .status "Zaakceptowany") (eq .status "Odrzucony")) (eq .read "Nieodczytane")}}
+                                <button onclick="markAsRead('{{.id}}')">Odczytane</button>
                                 {{ end }}
                             </td>
                         </tr>
-                        {{ end }}
+                        {{end}}
                     </tbody>
                 </table>
             </div>
@@ -560,6 +552,43 @@
                     alert('Wystąpił problem podczas zapisywania urlopu.');
                 });
         }
+
+        function markAsRead(vacationId) {
+    fetch('/warehouse/dashboard-worker', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ vacation_id: vacationId }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Nie udało się zmienić statusu na "Odczytane".');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Odpowiedź z serwera:", data);
+        if (data.success) {
+            const row = document.querySelector(`#vacation-${vacationId}`);
+            const statusCell = row.querySelector('read');
+            statusCell.textContent = 'Odczytane';
+
+            // Usunięcie przycisku "Odczytane"
+            const button = row.querySelector('button');
+            if (button) {
+                button.remove();
+            }
+        } else {
+            alert('Nie udało się zmienić statusu. Spróbuj ponownie.');
+        }
+    })
+    .catch(error => {
+        console.error('Błąd:', error);
+        alert('Wystąpił problem podczas zmiany statusu.');
+    });
+}
+
 
         // Initialize calendar
         generateCalendar(currentDate);

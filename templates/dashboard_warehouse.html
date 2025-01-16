@@ -247,12 +247,11 @@
 
     <script>
 let workingTimer, breakTimer;
-let workingTime = parseInt(localStorage.getItem('workingTime')) || 0;  // Wczytanie zapisanych wartości
+let workingTime = parseInt(localStorage.getItem('workingTime')) || 0;  
 let breakTime = parseInt(localStorage.getItem('breakTime')) || 1800;
-let isWorking = localStorage.getItem('isWorking') === 'true';  // Czy timer pracy był aktywowany
-let isOnBreak = localStorage.getItem('isOnBreak') === 'true';  // Czy przerwa była aktywna
-let startTime = null;
-let endTime = null;
+let isWorking = localStorage.getItem('isWorking') === 'true';
+let isOnBreak = localStorage.getItem('isOnBreak') === 'true';
+let lastUpdateTime = parseInt(localStorage.getItem('lastUpdateTime')) || Date.now();
 
 function formatTime(seconds) {
     const hours = Math.floor(seconds / 3600);
@@ -266,36 +265,54 @@ function updateDisplay() {
     document.getElementById('break-time-display').textContent = formatTime(breakTime);
 }
 
-// Funkcja startująca pracę
+function syncTimers() {
+    const now = Date.now();
+    const elapsed = Math.floor((now - lastUpdateTime) / 1000);
+
+    if (isWorking) {
+        workingTime += elapsed;
+    }
+    if (isOnBreak && breakTime > 0) {
+        breakTime = Math.max(0, breakTime - elapsed);
+    }
+
+    lastUpdateTime = now;
+    localStorage.setItem('workingTime', workingTime);
+    localStorage.setItem('breakTime', breakTime);
+    localStorage.setItem('lastUpdateTime', lastUpdateTime);
+    updateDisplay();
+}
+
 function startWork() {
+    syncTimers();
     if (isOnBreak) {
         clearInterval(breakTimer);
         isOnBreak = false;
     }
 
     if (!isWorking) {
-        startTime = new Date();
         workingTimer = setInterval(() => {
             workingTime++;
-            localStorage.setItem('workingTime', workingTime);  // Zapisz czas pracy
+            localStorage.setItem('workingTime', workingTime);
             updateDisplay();
         }, 1000);
-        localStorage.setItem('isWorking', 'true');  // Zapisz stan
-        document.getElementById('start-btn').textContent = 'Pauza';
         isWorking = true;
+        localStorage.setItem('isWorking', 'true');
+        document.getElementById('start-btn').textContent = 'Pauza';
     } else {
         clearInterval(workingTimer);
-        localStorage.setItem('isWorking', 'false');  // Zapisz stan
-        document.getElementById('start-btn').textContent = 'Start';
         isWorking = false;
+        localStorage.setItem('isWorking', 'false');
+        document.getElementById('start-btn').textContent = 'Start';
     }
 }
 
-// Funkcja startująca przerwę
 function startBreak() {
+    syncTimers();
     if (isWorking) {
         clearInterval(workingTimer);
         isWorking = false;
+        localStorage.setItem('isWorking', 'false');
         document.getElementById('start-btn').textContent = 'Start';
     }
 
@@ -303,23 +320,22 @@ function startBreak() {
         breakTimer = setInterval(() => {
             if (breakTime > 0) {
                 breakTime--;
-                localStorage.setItem('breakTime', breakTime);  // Zapisz czas przerwy
+                localStorage.setItem('breakTime', breakTime);
                 updateDisplay();
             } else {
                 clearInterval(breakTimer);
                 alert('Czas przerwy dobiegł końca!');
             }
         }, 1000);
-        localStorage.setItem('isOnBreak', 'true');  // Zapisz stan przerwy
         isOnBreak = true;
+        localStorage.setItem('isOnBreak', 'true');
     } else {
         clearInterval(breakTimer);
-        localStorage.setItem('isOnBreak', 'false');  // Zapisz stan przerwy
         isOnBreak = false;
+        localStorage.setItem('isOnBreak', 'false');
     }
 }
 
-// Funkcja do potwierdzenia zakończenia pracy
 function confirmStop() {
     const confirmEnd = confirm('Czy na pewno chcesz zakończyć pracę?');
     if (confirmEnd) {
@@ -327,57 +343,42 @@ function confirmStop() {
     }
 }
 
-// Funkcja kończąca pracę
 function stopWork() {
-    endTime = new Date();  // Zapamiętaj godzinę zakończenia pracy
     clearInterval(workingTimer);
     clearInterval(breakTimer);
-
-    // Zapisz czas pracy i przerwy do bazy danych przez backend
     fetch('/warehouse/save-time', {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             worked_hours: workingTime,
             break_time: 1800 - breakTime,
-        })
-    }).then(response => response.json())
-    .then(data => {
-        console.log('Czas zapisany:', data);
+        }),
     });
 
-    // Reset czasów i wyświetlaczy
     workingTime = 0;
     breakTime = 1800;
-    localStorage.removeItem('workingTime'); // Usunięcie zapisanych danych po zakończeniu
-    localStorage.removeItem('breakTime');
-    localStorage.removeItem('isWorking');
-    localStorage.removeItem('isOnBreak');
+    localStorage.clear();
     updateDisplay();
     document.getElementById('start-btn').textContent = 'Start';
-    document.getElementById('break-btn').disabled = false;
 }
 
-// Wywołanie funkcji do początkowego ustawienia czasów
-updateDisplay();
+// Synchronizuj czas po załadowaniu strony
+syncTimers();
 
-// Jeśli praca była w trakcie rozpoczęta, wznowienie licznika
+// Automatyczne wznawianie odliczania, jeśli było aktywne
 if (isWorking) {
     workingTimer = setInterval(() => {
         workingTime++;
-        localStorage.setItem('workingTime', workingTime);  // Zapisz czas pracy
+        localStorage.setItem('workingTime', workingTime);
         updateDisplay();
     }, 1000);
 }
 
-// Jeśli przerwa była aktywna, wznowienie licznika przerwy
 if (isOnBreak) {
     breakTimer = setInterval(() => {
         if (breakTime > 0) {
             breakTime--;
-            localStorage.setItem('breakTime', breakTime);  // Zapisz czas przerwy
+            localStorage.setItem('breakTime', breakTime);
             updateDisplay();
         } else {
             clearInterval(breakTimer);
@@ -388,18 +389,6 @@ if (isOnBreak) {
 
 // Wywołanie funkcji do początkowego ustawienia czasów
 updateDisplay();
-
-    //     // Jeśli użytkownik ma nowe zadania, pokazujemy modal
-    //     {'{ if .has_new_tasks }'}
-    //         document.getElementById('taskModal').style.display = 'block';
-    //         document.getElementById('modalBackdrop').style.display = 'block';
-    //     {'{ end }'}
-
-    //     // Funkcja do zamknięcia modala po kliknięciu przycisku OK
-    //     document.getElementById('closeModal').addEventListener('click', function() {
-    //         document.getElementById('taskModal').style.display = 'none';
-    //         document.getElementById('modalBackdrop').style.display = 'none';
-    //     });
 
     // Jeśli użytkownik ma nowe zadania, pokazujemy modal
 {'{ if .has_new_tasks }'}
