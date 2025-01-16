@@ -192,7 +192,7 @@
 <div id="modalBackdrop"></div>
 
 <!-- Modal -->
-<!-- {{ if or .has_overdue_tasks .has_new_tasks .has_vacation_tasks }}
+{{ if or .has_overdue_tasks .has_new_tasks .has_vacation_tasks }}
 <div id="taskModal">
     {{ if .has_overdue_tasks }}
         <p style="color: red;">{{ .overdue_message }}</p>
@@ -205,10 +205,10 @@
     {{ end }}
     <button class="btn" id="closeModal">OK</button>
 </div>
-{{ end }} -->
+{{ end }}
 
 <!-- Wyświetlanie komunikatu o nowych zadaniach -->
-<!-- {{ if .has_overdue_tasks }}
+{{ if .has_overdue_tasks }}
 <p style="color: red;">{{ .overdue_message }}</p>
 {{ end }}
 {{ if .has_new_tasks }}
@@ -219,7 +219,7 @@
 {{ end }}
     {{ if not .has_overdue_tasks }}
         <p>Nie masz żadnych nowych zadań.</p>
-    {{ end }} -->
+    {{ end }}
 
         <nav>
             <ul>

@@ -298,6 +298,7 @@
                 <table id="requests-table" border="1" style="margin-top: 20px;">
                     <thead>
                         <tr>
+                            <th>ID</th>
                             <th>Od</th>
                             <th>Do</th>
                             <th>Liczba dni</th>
@@ -309,6 +310,7 @@
                     <tbody>
                         {{range .vacations}}
                         <tr>
+                            <td>{{.id}}</td>
                             <td>{{.date_from}}</td>
                             <td>{{.date_to}}</td>
                             <td>{{.date_count}}</td>
@@ -320,12 +322,11 @@
                                 W trakcie
                                 {{else}}
                                 Nieodczytane
-                                {{end}}</td>
-                            <td>
-                                {{if eq .status "Zaakceptowany"}}
-                                <form method="POST" action="/warehouse/read-vacation">
-                                    <input type="hidden" name="vacation_id" value="{{.Vacation.id}}" />
-                                    <button type="submit" class="btn btn-primary btn-sm">Odczytane</button>
+                                {{end}}
+                                {{if and (or (eq .status "Zaakceptowany") (eq .status "Odrzucony")) (not .read)}}
+                                <form method="POST">
+                                    <input type="hidden" name="vacation_id" value="{{.ID}}" />
+                                    <button type="submit" name="read" value="Odczytane">Odczytane</button>
                                 </form>
                                 {{ end }}
                             </td>

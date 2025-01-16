@@ -32,13 +32,17 @@ func WarehouseRoutes(r *gin.RouterGroup, db *gorm.DB) {
 		controllers.DashboardWorker(c, db)
 	})
 
+	r.POST("/dashboard-worker", func(c *gin.Context) {
+		controllers.DashboardWorker(c, db)
+	})
+
 	r.POST("/save-vacation", func(c *gin.Context) {
 		controllers.SaveVacation(c, db)
 	})
 
-	r.POST("/read-vacation", func(c *gin.Context) {
-		controllers.ReadVacation(c, db)
-	})
+	// r.POST("/read-vacation", func(c *gin.Context) {
+	// 	controllers.ReadVacation(c, db)
+	// })
 
 	r.GET("/time-summary", func(c *gin.Context) {
 		controllers.TimeTracking(c, db)

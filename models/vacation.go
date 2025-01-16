@@ -101,6 +101,6 @@ func UpdateVacationStatus(db *gorm.DB, id uint, status string, rejectionReason *
 // Pobieranie liczby niewykonanych zadań dla użytkownika
 func GetVacationCountByUserID(db *gorm.DB, userID uint) (int64, error) {
 	var count int64
-	err := db.Model(&Vacation{}).Where("user_id = ? AND read = ?", userID, false).Count(&count).Error
+	err := db.Model(&Vacation{}).Where("user_id = ? AND read = ? AND status = ? OR status =?", userID, false, "Zaakceptowany", "Odrzucony").Count(&count).Error
 	return count, err
 }
