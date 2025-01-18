@@ -48,6 +48,10 @@ func HumanResourcesRoutes(r *gin.RouterGroup, db *gorm.DB) {
 		controllers.UpdateWorker(c, db)
 	})
 
+	r.GET("/workers/:id/delete", func(c *gin.Context) {
+		controllers.DeleteWorker(c, db)
+	})
+
 	r.GET("/orders", func(c *gin.Context) {
 		controllers.ListOrdersHR(c, db)
 	})

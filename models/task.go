@@ -65,12 +65,23 @@ func GetOverdueTasksCountByUserID(db *gorm.DB, userID uint) (int, error) {
 	return int(count), err
 }
 
-func CountIncompleteTasks(db *gorm.DB) (int64, error) {
-    var incompleteTaskCount int64
+func CountIncompleteTasks(db *gorm.DB, dateFrom, dateTo *time.Time) (int64, error) {
+	var incompleteTaskCount int64
 
-    if err := db.Model(&Task{}).Where("is_completed = ?", false).Count(&incompleteTaskCount).Error; err != nil {
-        return 0, err
-    }
+	// Zbuduj zapytanie z opcjonalnym filtrowaniem dat
+	query := db.Model(&Task{}).Where("is_completed = ?", false)
+	if dateFrom != nil && dateTo != nil {
+		query = query.Where("deadline BETWEEN ? AND ?", *dateFrom, *dateTo)
+	} else if dateFrom != nil {
+		query = query.Where("deadline >= ?", *dateFrom)
+	} else if dateTo != nil {
+		query = query.Where("deadline <= ?", *dateTo)
+	}
 
-    return incompleteTaskCount, nil
+	// Zlicz niewykonane zadania
+	if err := query.Count(&incompleteTaskCount).Error; err != nil {
+		return 0, err
+	}
+
+	return incompleteTaskCount, nil
 }

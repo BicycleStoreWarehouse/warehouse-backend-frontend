@@ -182,6 +182,22 @@ func UpdateWorker(c *gin.Context, db *gorm.DB) {
 	ListWorkers(c, db)
 }
 
+func DeleteWorker(c *gin.Context, db *gorm.DB) {
+	userIDParam := c.Param("id")
+
+	userID, _ := strconv.ParseUint(userIDParam, 10, 64)
+	userIDUint := uint(userID)
+
+	user, _ := models.GetUserByID(db, userIDUint)
+
+	if err := db.Delete(&user).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Błąd przy zapisywaniu zmian"})
+		return
+	}
+
+	ListWorkers(c, db)
+}
+
 func ListOrdersHR(c *gin.Context, db *gorm.DB) {
 	orders, _ := models.GetAllOrders(db)
 	bicycles, _ := models.GetBicyclesNames(db)

@@ -94,22 +94,38 @@ func GetPendingInvoices(db *gorm.DB) ([]SalesInvoice, []PurchaseInvoice, error) 
 
 }
 
-func CountUnpaidInvoices(db *gorm.DB) (map[string]int64, error) {
-    metrics := make(map[string]int64)
-    
-    // Zmienna tymczasowa dla purchase invoices
-    var unpaidPurchase int64
-    if err := db.Model(&PurchaseInvoice{}).Where("status_id = ?", 1).Count(&unpaidPurchase).Error; err != nil {
-        return nil, err
-    }
-    metrics["UnpaidPurchaseInvoices"] = unpaidPurchase
+func CountUnpaidInvoices(db *gorm.DB, dateFrom, dateTo *time.Time) (map[string]int64, error) {
+	metrics := make(map[string]int64)
 
-    // Zmienna tymczasowa dla sales invoices
-    var unpaidSales int64
-    if err := db.Model(&SalesInvoice{}).Where("status_id = ?", 1).Count(&unpaidSales).Error; err != nil {
-        return nil, err
-    }
-    metrics["UnpaidSalesInvoices"] = unpaidSales
+	// Zmienna tymczasowa dla faktur zakupowych
+	var unpaidPurchase int64
+	query := db.Model(&PurchaseInvoice{}).Where("status_id = ?", 1)
+	if dateFrom != nil && dateTo != nil {
+		query = query.Where("issue_date BETWEEN ? AND ?", *dateFrom, *dateTo)
+	} else if dateFrom != nil {
+		query = query.Where("issue_date >= ?", *dateFrom)
+	} else if dateTo != nil {
+		query = query.Where("issue_date <= ?", *dateTo)
+	}
+	if err := query.Count(&unpaidPurchase).Error; err != nil {
+		return nil, err
+	}
+	metrics["UnpaidPurchaseInvoices"] = unpaidPurchase
 
-    return metrics, nil
+	// Zmienna tymczasowa dla faktur sprzedażowych
+	var unpaidSales int64
+	query = db.Model(&SalesInvoice{}).Where("status_id = ?", 1)
+	if dateFrom != nil && dateTo != nil {
+		query = query.Where("issue_date BETWEEN ? AND ?", *dateFrom, *dateTo)
+	} else if dateFrom != nil {
+		query = query.Where("issue_date >= ?", *dateFrom)
+	} else if dateTo != nil {
+		query = query.Where("issue_date <= ?", *dateTo)
+	}
+	if err := query.Count(&unpaidSales).Error; err != nil {
+		return nil, err
+	}
+	metrics["UnpaidSalesInvoices"] = unpaidSales
+
+	return metrics, nil
 }

@@ -1,6 +1,10 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type Order struct {
 	gorm.Model
@@ -66,13 +70,25 @@ func GetUsersOrders(db *gorm.DB, userID uint) ([]OrderProduct, error) {
 	return orders, nil
 }
 
-func CountOrders(db *gorm.DB) (int64, error) {
-    var orderCount int64
+func CountOrders(db *gorm.DB, dateFrom, dateTo *time.Time) (int64, error) {
+	var orderCount int64
 
-    if err := db.Model(&Order{}).Count(&orderCount).Error; err != nil {
-        return 0, err
-    }
+	// Zbuduj zapytanie z opcjonalnym filtrowaniem dat
+	query := db.Model(&Order{})
+	if dateFrom != nil && dateTo != nil {
+		query = query.Where("created_at BETWEEN ? AND ?", *dateFrom, *dateTo)
+	} else if dateFrom != nil {
+		query = query.Where("created_at >= ?", *dateFrom)
+	} else if dateTo != nil {
+		query = query.Where("created_at <= ?", *dateTo)
+	}
 
-    return orderCount, nil
+	// Zlicz zamówienia
+	if err := query.Count(&orderCount).Error; err != nil {
+		return 0, err
+	}
+
+	return orderCount, nil
 }
+
 

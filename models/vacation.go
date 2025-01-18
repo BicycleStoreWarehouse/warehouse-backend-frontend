@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -107,4 +109,15 @@ func GetVacationCountByUserID(db *gorm.DB, userID uint) (int64, error) {
 	var count int64
 	err := db.Model(&Vacation{}).Where("user_id = ? AND read = ?", userID, "Nieodczytane").Count(&count).Error
 	return count, err
+}
+
+func CountUsersOnVacation(db *gorm.DB) (int64, error) {
+	var count int64
+	err := db.Model(&Vacation{}).
+		Where("date_from <= ? AND date_to >= ?", time.Now().Format("2006-01-02"), time.Now().Format("2006-01-02")).
+		Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+	return count, nil
 }

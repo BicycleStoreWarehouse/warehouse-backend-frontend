@@ -165,13 +165,25 @@ func GetPositionByName(db *gorm.DB, name string) (Position, error) {
 	return position, err
 }
 
-func CountUsersByPosition(db *gorm.DB) (map[string]int64, error) {
+func CountUsersByPosition(db *gorm.DB, dateFrom, dateTo *time.Time) (map[string]int64, error) {
 	var users []User
 
-	if err := db.Preload("Position").Find(&users).Error; err != nil {
+	// Zbuduj zapytanie z opcjonalnym filtrowaniem dat
+	query := db.Preload("Position")
+	if dateFrom != nil && dateTo != nil {
+		query = query.Where("date_of_employment BETWEEN ? AND ?", *dateFrom, *dateTo)
+	} else if dateFrom != nil {
+		query = query.Where("date_of_employment >= ?", *dateFrom)
+	} else if dateTo != nil {
+		query = query.Where("date_of_employment <= ?", *dateTo)
+	}
+
+	// Pobierz użytkowników z bazy danych
+	if err := query.Find(&users).Error; err != nil {
 		return nil, err
 	}
 
+	// Licz użytkowników na podstawie pozycji
 	var workerCount int64
 	var hrCount int64
 
@@ -184,6 +196,7 @@ func CountUsersByPosition(db *gorm.DB) (map[string]int64, error) {
 		}
 	}
 
+	// Zwróć wynik
 	return map[string]int64{
 		"Magazynowy": workerCount,
 		"HR":         hrCount,

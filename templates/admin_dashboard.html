@@ -214,10 +214,21 @@
         </nav>
 
         <section class="content">
+            <div class="filters">
+                <form method="POST" action="/admin/dashboard">
+                    <label for="date_from">Od:</label>
+                    <input type="date" id="date_from" name="date_from" value="{{.date_from}}">
+                    
+                    <label for="date_to">Do:</label>
+                    <input type="date" id="date_to" name="date_to" value="{{.date_to}}">
+
+                    <button type="submit">Filtruj</button>
+                </form>
+            </div>
             <div class="dashboard-stats">
                 <div class="stat-card">
                     <h3>Pracownicy</h3>
-                    <div class="stat-number">6</div>
+                    <div class="stat-number">{{.pracownik_count}}</div>
                     <p>Aktywni pracownicy</p>
                 </div>
                 <div class="stat-card">
@@ -237,7 +248,7 @@
                 </div>
                 <div class="stat-card">
                     <h3>Urlopy</h3>
-                    <div class="stat-number">3</div>
+                    <div class="stat-number">{{.users_vacation}}</div>
                     <p>Osoby na urlopie</p>
                 </div>
             </div>
@@ -263,7 +274,7 @@
                 labels: ['Faktury zakupowe', 'Faktury sprzedażowe'],
                 datasets: [{
                     label: 'Niezapłacone faktury',
-                    data: [3, {{.unpaid_sales_invoices}}],
+                    data: [{{.unpaid_purchase_invoices}}, {{.unpaid_sales_invoices}}],
                     backgroundColor: ['#3498db', '#e74c3c']
                 }]
             },
@@ -283,7 +294,7 @@
             data: {
                 labels: ['Pracownicy', 'HR'],
                 datasets: [{
-                    data: [6, {{.hr_count}}],
+                    data: [{{.pracownik_count}}, {{.hr_count}}],
                     backgroundColor: ['#2ecc71', '#9b59b6']
                 }]
             },
