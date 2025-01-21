@@ -36,6 +36,10 @@ func WarehouseRoutes(r *gin.RouterGroup, db *gorm.DB) {
 		controllers.DashboardWorker(c, db)
 	})
 
+	r.POST("/change-status/", func(c *gin.Context) {
+		controllers.ChangeStatus(c, db)
+	})
+
 	r.POST("/save-vacation", func(c *gin.Context) {
 		controllers.SaveVacation(c, db)
 	})

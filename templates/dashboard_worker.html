@@ -554,41 +554,47 @@
         }
 
         function markAsRead(vacationId) {
-    fetch('/warehouse/dashboard-worker', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ vacation_id: vacationId }),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Nie udało się zmienić statusu na "Odczytane".');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log("Odpowiedź z serwera:", data);
-        if (data.success) {
-            const row = document.querySelector(`#vacation-${vacationId}`);
-            const statusCell = row.querySelector('read');
-            statusCell.textContent = 'Odczytane';
+            const url = '/warehouse/change-status';
+            const payload = { 
+                vacation_id: parseInt(vacationId, 10) // upewniamy się że to liczba
+            };
+            
+            console.log('Wysyłam dane:', payload); // debugowanie
 
-            // Usunięcie przycisku "Odczytane"
-            const button = row.querySelector('button');
-            if (button) {
-                button.remove();
-            }
-        } else {
-            alert('Nie udało się zmienić statusu. Spróbuj ponownie.');
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => {
+                console.log('Status odpowiedzi:', response.status);
+                return response.json();
+            })
+            .then(data => {
+                console.log("Odpowiedź z serwera:", data);
+                if (data.success) {
+                    const row = document.querySelector(`#vacation-${vacationId}`);
+                    if (row) {
+                        const statusCell = row.querySelector('.read-status');
+                        if (statusCell) {
+                            statusCell.textContent = 'Odczytane';
+                        }
+                        const button = row.querySelector('button');
+                        if (button) {
+                            button.remove();
+                        }
+                    }
+                } else {
+                    throw new Error(data.error || 'Nieznany błąd');
+                }
+            })
+            .catch(error => {
+                console.error('Błąd:', error);
+                alert(error.message);
+            });
         }
-    })
-    .catch(error => {
-        console.error('Błąd:', error);
-        alert('Wystąpił problem podczas zmiany statusu.');
-    });
-}
-
 
         // Initialize calendar
         generateCalendar(currentDate);

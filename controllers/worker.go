@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"strconv"
@@ -119,27 +121,6 @@ func DashboardWorker(c *gin.Context, db *gorm.DB) {
 		return
 	}
 
-	// Sprawdzenie, czy użytkownik chce zmienić status urlopu
-	vacationIDStr := c.DefaultPostForm("vacation_id", "")
-	read := c.DefaultPostForm("read", "")
-	if vacationIDStr != "" && read == "Odczytany" {
-		// Konwersja vacationID na typ uint
-		vacationID, err := strconv.Atoi(vacationIDStr)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Niepoprawny identyfikator urlopu"})
-			return
-		}
-
-		// Aktualizacja statusu urlopu
-		err = models.UpdateVacationStatus(db, uint(vacationID), "Nieodczytane", nil)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Nie udało się zaktualizować statusu urlopu",
-			})
-			return
-		}
-	}
-
 	// Pobierz urlopy użytkownika
 	vacations, err := models.GetVacationsByUserID(db, userID.(uint))
 	if err != nil {
@@ -180,6 +161,44 @@ func DashboardWorker(c *gin.Context, db *gorm.DB) {
 		"user_location":    user.City,
 		"vacations":        vacationData,
 	})
+}
+
+func ChangeStatus(c *gin.Context, db *gorm.DB) {
+    // Wydrukuj otrzymane dane dla debugowania
+    body, _ := io.ReadAll(c.Request.Body)
+    fmt.Printf("Otrzymane dane: %s\n", string(body))
+    
+    // Przywróć body do kontekstu
+    c.Request.Body = io.NopCloser(bytes.NewBuffer(body))
+
+    // Struktura dla danych wejściowych
+    var request struct {
+        VacationID int `json:"vacation_id" binding:"required"`
+    }
+
+    if err := c.ShouldBindJSON(&request); err != nil {
+        fmt.Printf("Błąd parsowania JSON: %v\n", err)
+        c.JSON(http.StatusBadRequest, gin.H{
+            "success": false,
+            "error": "Niepoprawne dane wejściowe: " + err.Error(),
+        })
+        return
+    }
+
+    // Aktualizacja statusu
+    err := models.UpdateVacationStatus(db, uint(request.VacationID), "Odczytane", nil)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{
+            "success": false,
+            "error": "Nie udało się zaktualizować statusu urlopu",
+        })
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "success": true,
+        "message": "Status został zaktualizowany",
+    })
 }
 
 func SaveVacation(c *gin.Context, db *gorm.DB) {
