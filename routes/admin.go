@@ -15,4 +15,8 @@ func AdminRoutes(r *gin.RouterGroup, db *gorm.DB) {
 	r.POST("/dashboard", func(c *gin.Context) {
 		controllers.AdminDashboardPost(c, db)
 	})
+
+	r.POST("/generate-report", func(c *gin.Context) {
+		controllers.GenerateReport(c, db)
+	})
 }
