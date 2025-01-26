@@ -317,7 +317,7 @@
                             <td>{{.status}}</td>
                             <td>{{.reason}}</td>
                             <td>
-                                <span class="status">{{if eq .read "Odczytane"}}Odczytane{{else}}Nieodczytane{{end}}</span>
+                                <span class="status"></span>
                                 {{if and (or (eq .status "Zaakceptowany") (eq .status "Odrzucony")) (eq .read "Nieodczytane")}}
                                 <button onclick="markAsRead('{{.id}}')">Odczytane</button>
                                 {{ end }}
